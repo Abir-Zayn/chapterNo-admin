@@ -22,7 +22,7 @@ final class SupabaseGraphQLService implements GraphQLService {
   final Client _httpClient;
 
   Uri get _endpoint {
-    final base = envConfig.supabaseUrl.replaceAll(RegExp(r'/+$'), '');
+    final base = envConfig.supabaseProxyUrl.replaceAll(RegExp(r'/+$'), '');
     return Uri.parse('$base/graphql/v1');
   }
 

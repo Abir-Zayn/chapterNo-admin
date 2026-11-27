@@ -28,7 +28,7 @@ Future<void> bootstrap() async {
 
       try {
         await Supabase.initialize(
-          url: envConfig.supabaseUrl,
+          url: envConfig.supabaseProxyUrl,
           publishableKey: envConfig.supabasePublishableKey,
         );
       } catch (error) {
@@ -47,12 +47,14 @@ Future<void> bootstrap() async {
         supabaseService: supabaseService,
       );
       final curriculumRepository = GraphQLCurriculumRepository(graphqlService);
+      final bulkImportRepository = SupabaseBulkImportRepository(supabaseService);
 
       runApp(
         ChapterNoAdminApp(
           envConfig: envConfig,
           authRepository: authRepository,
           curriculumRepository: curriculumRepository,
+          bulkImportRepository: bulkImportRepository,
         ),
       );
     },

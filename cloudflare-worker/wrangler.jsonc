@@ -1,0 +1,13 @@
+// Cloudflare Worker for the chapterNo admin dashboard.
+// The Flutter web build is served from the ASSETS_KV namespace (uploaded
+// after `flutter build web` via the scripts in build/). See README.md.
+{
+  "name": "chapterno-dashboard",
+  "account_id": "72d1ef92560e936c3663e51a615b34d5",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-01",
+  "kv_namespaces": [
+    { "binding": "ASSETS_KV", "id": "27f18597647d4458ac960b5a3ca14cb1" }
+  ],
+  "observability": { "enabled": true, "traces": { "enabled": true } }
+}

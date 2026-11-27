@@ -28,7 +28,7 @@ void main() {
   setUp(() {
     authRepository = _MockAuthRepository();
     envConfig = EnvConfig.fromValues(
-      supabaseUrl: 'https://test-project.supabase.co',
+      supabaseProxyUrl: 'https://test-project.supabase.co',
       supabasePublishableKey: 'sb_publishable_test_key',
     );
   });
