@@ -125,5 +125,11 @@ void main() {
 
     expect(find.text('Workspace Settings'), findsOneWidget);
     expect(find.text('test-project.supabase.co'), findsOneWidget);
+
+    await tester.tap(find.text('Dark'));
+    await tester.pumpAndSettle();
+
+    final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
+    expect(app.themeMode, ThemeMode.dark);
   });
 }

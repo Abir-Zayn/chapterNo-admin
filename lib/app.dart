@@ -22,6 +22,7 @@ class ChapterNoAdminApp extends StatefulWidget {
 
 class _ChapterNoAdminAppState extends State<ChapterNoAdminApp> {
   late final AuthCubit _authCubit;
+  late final ThemeCubit _themeCubit;
   CurriculumCubit? _curriculumCubit;
   late final AppRouter _appRouter;
 
@@ -29,6 +30,7 @@ class _ChapterNoAdminAppState extends State<ChapterNoAdminApp> {
   void initState() {
     super.initState();
     _authCubit = AuthCubit(widget.authRepository);
+    _themeCubit = ThemeCubit();
     if (widget.curriculumRepository != null) {
       _curriculumCubit = CurriculumCubit(widget.curriculumRepository!);
     }
@@ -42,17 +44,24 @@ class _ChapterNoAdminAppState extends State<ChapterNoAdminApp> {
   void dispose() {
     _appRouter.dispose();
     _curriculumCubit?.close();
+    _themeCubit.close();
     _authCubit.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final app = MaterialApp.router(
-      title: 'ChapterNo Admin Dashboard',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      routerConfig: _appRouter.router,
+    final app = BlocBuilder<ThemeCubit, ThemeMode>(
+      builder: (context, themeMode) {
+        return MaterialApp.router(
+          title: 'ChapterNo Admin Dashboard',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: themeMode,
+          routerConfig: _appRouter.router,
+        );
+      },
     );
 
     return MultiRepositoryProvider(
@@ -66,6 +75,7 @@ class _ChapterNoAdminAppState extends State<ChapterNoAdminApp> {
       child: MultiBlocProvider(
         providers: [
           BlocProvider<AuthCubit>.value(value: _authCubit),
+          BlocProvider<ThemeCubit>.value(value: _themeCubit),
           if (_curriculumCubit != null)
             BlocProvider<CurriculumCubit>.value(value: _curriculumCubit!),
         ],

@@ -40,11 +40,17 @@ final class SupabaseGraphQLService implements GraphQLService {
       );
     }
 
+    final opLabel = operationName ?? 'AnonymousOperation';
     final payload = <String, dynamic>{
       'query': document,
       'variables': variables,
       'operationName': ?operationName,
     };
+
+    AppLogger.log(
+      '[GraphQL] -> $opLabel | endpoint=$_endpoint | variables=${jsonEncode(variables)}',
+    );
+    final stopwatch = Stopwatch()..start();
 
     late final Response response;
     try {
@@ -60,23 +66,43 @@ final class SupabaseGraphQLService implements GraphQLService {
           )
           .timeout(const Duration(seconds: 25));
     } on TimeoutException {
+      stopwatch.stop();
+      AppLogger.log(
+        '[GraphQL][TIMEOUT] $opLabel (${stopwatch.elapsedMilliseconds}ms)',
+      );
       throw const NetworkFailure(
         'Request timed out while contacting Supabase GraphQL.',
         code: 'timeout',
       );
     } on ClientException catch (error) {
+      stopwatch.stop();
+      AppLogger.log(
+        '[GraphQL][NETWORK_ERROR] $opLabel (${stopwatch.elapsedMilliseconds}ms): ${error.message}',
+      );
       throw NetworkFailure(
         'Network error contacting Supabase GraphQL: ${error.message}',
         code: 'client_error',
       );
     } catch (error) {
+      stopwatch.stop();
+      AppLogger.log(
+        '[GraphQL][ERROR] $opLabel (${stopwatch.elapsedMilliseconds}ms): $error',
+      );
       throw NetworkFailure(
         'Failed to contact Supabase GraphQL: $error',
         code: 'network_error',
       );
     }
 
+    stopwatch.stop();
+    AppLogger.log(
+      '[GraphQL] <- $opLabel (${stopwatch.elapsedMilliseconds}ms) | HTTP ${response.statusCode}',
+    );
+
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      AppLogger.log(
+        '[GraphQL][HTTP_ERROR] $opLabel | status=${response.statusCode} | body=${response.body}',
+      );
       throw GraphQLErrorMapper.mapHttpStatus(
         response.statusCode,
         response.body,
@@ -87,20 +113,28 @@ final class SupabaseGraphQLService implements GraphQLService {
     try {
       decoded = jsonDecode(response.body);
     } catch (_) {
+      AppLogger.log(
+        '[GraphQL][JSON_ERROR] $opLabel | rawBody=${response.body}',
+      );
       throw const UnexpectedFailure('Invalid JSON returned from GraphQL API.');
     }
 
     if (decoded is! Map<String, dynamic>) {
+      AppLogger.log('[GraphQL][ENVELOPE_ERROR] $opLabel | decoded=$decoded');
       throw const UnexpectedFailure('Unexpected GraphQL response envelope.');
     }
 
     final errors = decoded['errors'];
     if (errors is List && errors.isNotEmpty) {
+      AppLogger.log(
+        '[GraphQL][GRAPHQL_ERRORS] $opLabel | errors=${jsonEncode(errors)}',
+      );
       throw GraphQLErrorMapper.mapErrors(errors);
     }
 
     final data = decoded['data'];
     if (data is! Map<String, dynamic>) {
+      AppLogger.log('[GraphQL][DATA_ERROR] $opLabel | body=${response.body}');
       throw const UnexpectedFailure('GraphQL response did not include data.');
     }
 

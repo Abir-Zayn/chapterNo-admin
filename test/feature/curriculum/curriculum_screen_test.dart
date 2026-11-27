@@ -188,4 +188,28 @@ void main() {
     expect(find.text('Add Level'), findsOneWidget);
     expect(find.text('Add Board'), findsOneWidget);
   });
+
+  testWidgets('selected group chip uses white text on black primary fill', (
+    tester,
+  ) async {
+    await pumpScreen(tester, AdminRole.editor);
+
+    final allChipText = tester.widget<Text>(
+      find.descendant(of: find.byType(ChoiceChip), matching: find.text('সকল')),
+    );
+    expect(allChipText.style?.color, Colors.white);
+
+    final scienceFinder = find.descendant(
+      of: find.byType(ChoiceChip),
+      matching: find.text('বিজ্ঞান'),
+    );
+    final scienceChipText = tester.widget<Text>(scienceFinder);
+    expect(scienceChipText.style?.color, AppColors.textPrimary);
+
+    await tester.tap(scienceFinder);
+    await tester.pumpAndSettle();
+
+    final selectedScienceText = tester.widget<Text>(scienceFinder);
+    expect(selectedScienceText.style?.color, Colors.white);
+  });
 }

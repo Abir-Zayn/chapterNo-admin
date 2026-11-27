@@ -58,6 +58,9 @@ create table if not exists public.education_levels (
 );
 
 alter table public.education_levels
+  add column if not exists code text,
+  add column if not exists name_bn text,
+  add column if not exists name_en text,
   add column if not exists display_order integer not null default 0,
   add column if not exists is_active boolean not null default true,
   add column if not exists archived_at timestamptz,
@@ -80,6 +83,10 @@ create table if not exists public.boards (
 );
 
 alter table public.boards
+  add column if not exists education_level_id uuid references public.education_levels(id) on delete restrict,
+  add column if not exists code text,
+  add column if not exists name_bn text,
+  add column if not exists name_en text,
   add column if not exists display_order integer not null default 0,
   add column if not exists is_active boolean not null default true,
   add column if not exists archived_at timestamptz,
@@ -111,8 +118,12 @@ create table if not exists public.subjects (
 );
 
 alter table public.subjects
+  add column if not exists education_level_id uuid references public.education_levels(id) on delete restrict,
+  add column if not exists code text,
   add column if not exists nctb_code text,
   add column if not exists academic_group text not null default 'common',
+  add column if not exists name_bn text,
+  add column if not exists name_en text,
   add column if not exists short_name_bn text,
   add column if not exists display_order integer not null default 0,
   add column if not exists is_active boolean not null default true,
@@ -146,6 +157,11 @@ create table if not exists public.chapters (
 );
 
 alter table public.chapters
+  add column if not exists subject_id uuid references public.subjects(id) on delete restrict,
+  add column if not exists chapter_number integer,
+  add column if not exists code text,
+  add column if not exists name_bn text,
+  add column if not exists name_en text,
   add column if not exists description_bn text,
   add column if not exists display_order integer not null default 0,
   add column if not exists is_active boolean not null default true,
@@ -177,6 +193,10 @@ create table if not exists public.topics (
 );
 
 alter table public.topics
+  add column if not exists chapter_id uuid references public.chapters(id) on delete restrict,
+  add column if not exists code text,
+  add column if not exists name_bn text,
+  add column if not exists name_en text,
   add column if not exists summary_bn text,
   add column if not exists display_order integer not null default 0,
   add column if not exists is_active boolean not null default true,
@@ -460,3 +480,6 @@ $$;
 
 revoke all on function public.reorder_curriculum_nodes(text, uuid, uuid[]) from public;
 grant execute on function public.reorder_curriculum_nodes(text, uuid, uuid[]) to authenticated;
+
+-- 7. Enable camelCase inflection in pg_graphql and refresh GraphQL schema cache
+comment on schema public is e'@graphql({"inflect_names": true})';

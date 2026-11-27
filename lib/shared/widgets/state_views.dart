@@ -9,6 +9,7 @@ class AppLoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -22,7 +23,7 @@ class AppLoadingView extends StatelessWidget {
           Text(
             message,
             style: Theme.of(context).textTheme.bodyMedium
-                ?.copyWith(color: AppColors.textSecondary),
+                ?.copyWith(color: palette.textSecondary),
           ),
         ],
       ),
@@ -46,19 +47,20 @@ class AppEmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 420),
         padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: palette.surface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: palette.border),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 32, color: AppColors.textSecondary),
+            Icon(icon, size: 32, color: palette.textSecondary),
             const SizedBox(height: 12),
             Text(
               title,
@@ -71,7 +73,7 @@ class AppEmptyView extends StatelessWidget {
               subtitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall
-                  ?.copyWith(color: AppColors.textSecondary),
+                  ?.copyWith(color: palette.textSecondary),
             ),
             if (action != null) ...[const SizedBox(height: 18), action!],
           ],
@@ -95,23 +97,24 @@ class AppErrorBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.errorTint,
+        color: palette.errorTint,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.error.withValues(alpha: 0.35)),
+        border: Border.all(color: palette.error.withValues(alpha: 0.35)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 1),
+          Padding(
+            padding: const EdgeInsets.only(top: 1),
             child: Icon(
               PhosphorIconsRegular.warningCircle,
               size: 18,
-              color: AppColors.error,
+              color: palette.error,
             ),
           ),
           const SizedBox(width: 10),
@@ -122,8 +125,8 @@ class AppErrorBanner extends StatelessWidget {
                 if (title != null) ...[
                   Text(
                     title!,
-                    style: const TextStyle(
-                      color: AppColors.error,
+                    style: TextStyle(
+                      color: palette.error,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
@@ -132,10 +135,7 @@ class AppErrorBanner extends StatelessWidget {
                 ],
                 Text(
                   message,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: palette.textPrimary, fontSize: 13),
                 ),
               ],
             ),

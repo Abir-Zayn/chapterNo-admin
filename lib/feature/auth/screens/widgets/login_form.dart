@@ -104,23 +104,23 @@ class _LoginFormState extends State<LoginForm> {
                 FilledButton(
                   onPressed: state.isSubmitting ? null : _submit,
                   child: state.isSubmitting
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.white,
+                            color: AppPalette.of(context).onPrimary,
                           ),
                         )
                       : const Text('Sign In to Admin Workspace'),
                 ),
                 const SizedBox(height: 14),
-                const Text(
+                Text(
                   'Student accounts are blocked automatically. Access is verified via server-side Postgres RLS.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: AppPalette.of(context).textSecondary,
                   ),
                 ),
               ],

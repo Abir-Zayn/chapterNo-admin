@@ -30,11 +30,12 @@ class ChapterListPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: palette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -126,16 +127,17 @@ class _ChapterTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryTint : AppColors.canvas,
+          color: isSelected ? palette.primaryTint : palette.canvas,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected ? palette.primary : palette.border,
           ),
         ),
         child: Row(
@@ -144,12 +146,12 @@ class _ChapterTile extends StatelessWidget {
             if (canEdit)
               ReorderableDragStartListener(
                 index: index,
-                child: const Padding(
-                  padding: EdgeInsets.only(right: 8, top: 2),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8, top: 2),
                   child: Icon(
                     PhosphorIconsRegular.dotsSixVertical,
                     size: 18,
-                    color: AppColors.textSecondary,
+                    color: palette.textSecondary,
                   ),
                 ),
               ),
@@ -165,9 +167,9 @@ class _ChapterTile extends StatelessWidget {
                       const Spacer(),
                       Text(
                         '${chapter.topics.length} topics',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11.5,
-                          color: AppColors.textSecondary,
+                          color: palette.textSecondary,
                         ),
                       ),
                     ],
@@ -178,16 +180,14 @@ class _ChapterTile extends StatelessWidget {
                     style: AppTypography.bangla(
                       fontSize: 14.5,
                       fontWeight: FontWeight.w600,
-                      color: isSelected
-                          ? AppColors.primary
-                          : AppColors.textPrimary,
+                      color: isSelected ? palette.primary : palette.textPrimary,
                     ),
                   ),
                   Text(
                     chapter.nameEn,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: palette.textSecondary,
                     ),
                   ),
                 ],
@@ -245,11 +245,12 @@ class TopicListPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: palette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -300,9 +301,9 @@ class TopicListPane extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.canvas,
+                            color: palette.canvas,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.border),
+                            border: Border.all(color: palette.border),
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,12 +311,15 @@ class TopicListPane extends StatelessWidget {
                               if (canEdit)
                                 ReorderableDragStartListener(
                                   index: index,
-                                  child: const Padding(
-                                    padding: EdgeInsets.only(right: 8, top: 2),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      right: 8,
+                                      top: 2,
+                                    ),
                                     child: Icon(
                                       PhosphorIconsRegular.dotsSixVertical,
                                       size: 18,
-                                      color: AppColors.textSecondary,
+                                      color: palette.textSecondary,
                                     ),
                                   ),
                                 ),
@@ -340,17 +344,17 @@ class TopicListPane extends StatelessWidget {
                                     ),
                                     Text(
                                       topic.nameEn,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 12,
-                                        color: AppColors.textSecondary,
+                                        color: palette.textSecondary,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       topic.code,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11.5,
-                                        color: AppColors.textSecondary,
+                                        color: palette.textSecondary,
                                       ),
                                     ),
                                   ],
@@ -386,12 +390,12 @@ class TopicListPane extends StatelessWidget {
                                       ),
                                     ),
                                     if (canDelete)
-                                      const PopupMenuItem(
+                                      PopupMenuItem(
                                         value: 'delete',
                                         child: Text(
                                           'Delete (Unreferenced)',
                                           style: TextStyle(
-                                            color: AppColors.error,
+                                            color: palette.error,
                                           ),
                                         ),
                                       ),

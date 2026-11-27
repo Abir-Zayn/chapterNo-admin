@@ -1,5 +1,5 @@
 // Responsive desktop sidebar shell with SelectionArea and solid 1dp dividers.
-// Hosts Curriculum, MCQ Studio, Bulk Import, Question Bank, and Settings.
+// Hosts navigation, theme mode toggle, verified admin badge, and sign-out.
 import 'imports/admin_shell_imports.dart';
 
 class AdminShell extends StatelessWidget {
@@ -18,7 +18,10 @@ class AdminShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     final isDesktop = MediaQuery.sizeOf(context).width >= 900;
+    final themeMode = context.watch<ThemeCubit?>()?.state ?? ThemeMode.light;
+    final isDark = themeMode == ThemeMode.dark;
     final activeItem = kAdminNavItems.firstWhere(
       (item) => currentPath.startsWith(item.path),
       orElse: () => kAdminNavItems.first,
@@ -29,15 +32,17 @@ class AdminShell extends StatelessWidget {
       adminUser: adminUser,
       onSignOut: onSignOut,
       closeDrawerOnTap: !isDesktop,
+      isDark: isDark,
+      onToggleTheme: () => context.read<ThemeCubit?>()?.toggle(),
     );
 
     return Scaffold(
-      backgroundColor: AppColors.canvas,
+      backgroundColor: palette.canvas,
       drawer: isDesktop ? null : Drawer(width: 256, child: sidebar),
       appBar: isDesktop
           ? null
           : AppBar(
-              backgroundColor: AppColors.surface,
+              backgroundColor: palette.surface,
               surfaceTintColor: Colors.transparent,
               elevation: 0,
               title: Text(
@@ -47,6 +52,20 @@ class AdminShell extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
+              actions: [
+                IconButton(
+                  tooltip: isDark
+                      ? 'Switch to light mode'
+                      : 'Switch to dark mode',
+                  onPressed: () => context.read<ThemeCubit?>()?.toggle(),
+                  icon: Icon(
+                    isDark
+                        ? PhosphorIconsRegular.sun
+                        : PhosphorIconsRegular.moon,
+                    size: 18,
+                  ),
+                ),
+              ],
               bottom: const PreferredSize(
                 preferredSize: Size.fromHeight(1),
                 child: Divider(height: 1),
@@ -72,19 +91,24 @@ class _SidebarPanel extends StatelessWidget {
     required this.adminUser,
     required this.onSignOut,
     required this.closeDrawerOnTap,
+    required this.isDark,
+    required this.onToggleTheme,
   });
 
   final String currentPath;
   final AdminUser adminUser;
   final VoidCallback onSignOut;
   final bool closeDrawerOnTap;
+  final bool isDark;
+  final VoidCallback onToggleTheme;
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(right: BorderSide(color: AppColors.border)),
+      decoration: BoxDecoration(
+        color: palette.surface,
+        border: Border(right: BorderSide(color: palette.border)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -97,17 +121,17 @@ class _SidebarPanel extends StatelessWidget {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
+                    color: palette.primary,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     PhosphorIconsFill.graduationCap,
                     size: 18,
-                    color: Colors.white,
+                    color: palette.onPrimary,
                   ),
                 ),
                 const SizedBox(width: 10),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -118,7 +142,7 @@ class _SidebarPanel extends StatelessWidget {
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 15,
-                          color: AppColors.textPrimary,
+                          color: palette.textPrimary,
                         ),
                       ),
                       Text(
@@ -127,7 +151,7 @@ class _SidebarPanel extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 11.5,
-                          color: AppColors.textSecondary,
+                          color: palette.textSecondary,
                         ),
                       ),
                     ],
@@ -183,12 +207,23 @@ class _SidebarPanel extends StatelessWidget {
                   adminUser.email,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                  ),
+                  style: TextStyle(fontSize: 12, color: palette.textSecondary),
                 ),
                 const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: onToggleTheme,
+                    icon: Icon(
+                      isDark
+                          ? PhosphorIconsRegular.sun
+                          : PhosphorIconsRegular.moon,
+                      size: 16,
+                    ),
+                    label: Text(isDark ? 'Light Mode' : 'Dark Mode'),
+                  ),
+                ),
+                const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
@@ -219,8 +254,9 @@ class _NavTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Material(
-      color: isSelected ? AppColors.primaryTint : Colors.transparent,
+      color: isSelected ? palette.primaryTint : Colors.transparent,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         onTap: onTap,
@@ -231,7 +267,7 @@ class _NavTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: isSelected
-                  ? AppColors.primary.withValues(alpha: 0.25)
+                  ? palette.primary.withValues(alpha: 0.25)
                   : Colors.transparent,
             ),
           ),
@@ -240,7 +276,7 @@ class _NavTile extends StatelessWidget {
               Icon(
                 isSelected ? item.activeIcon : item.icon,
                 size: 18,
-                color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                color: isSelected ? palette.primary : palette.textSecondary,
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -251,9 +287,7 @@ class _NavTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13.5,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected
-                        ? AppColors.primary
-                        : AppColors.textPrimary,
+                    color: isSelected ? palette.primary : palette.textPrimary,
                   ),
                 ),
               ),
