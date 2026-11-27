@@ -5,6 +5,7 @@ import 'package:chapterno_admin/config/env/env_config.dart';
 import 'package:chapterno_admin/core/error/app_failure.dart';
 import 'package:chapterno_admin/feature/auth/domain/admin_user.dart';
 import 'package:chapterno_admin/feature/auth/domain/auth_repository.dart';
+import 'package:chapterno_admin/feature/auth/types/admin_role.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
