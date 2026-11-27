@@ -1,6 +1,6 @@
 // Crash-safe application bootstrap handling env validation and Supabase init.
 // Renders an actionable configuration error screen if .env defines are invalid.
-import 'bootstrap_imports.dart';
+import 'imports/bootstrap_imports.dart';
 
 Future<void> bootstrap() async {
   await runZonedGuarded(

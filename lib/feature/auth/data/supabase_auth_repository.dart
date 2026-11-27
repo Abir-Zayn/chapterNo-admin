@@ -1,6 +1,6 @@
 // Supabase-backed AuthRepository enforcing server-side admin verification.
 // Signs out immediately if a student or deactivated account attempts access.
-import 'supabase_auth_repository_imports.dart';
+import 'imports/supabase_auth_repository_imports.dart';
 
 class SupabaseAuthRepository implements AuthRepository {
   SupabaseAuthRepository(this._supabase);

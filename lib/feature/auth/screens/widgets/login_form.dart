@@ -1,6 +1,6 @@
 // Keyboard-friendly admin sign-in form with error banner and submit state.
 // Dispatches sign-in and error-clear actions to AuthCubit.
-import 'login_form_imports.dart';
+import 'imports/login_form_imports.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});

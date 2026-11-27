@@ -1,6 +1,6 @@
 // Boards & Education Levels management tab (mutations gated to super_admin).
 // Responsive two-pane layout on desktop, stacked on mobile screens.
-import 'boards_levels_tab_imports.dart';
+import 'imports/boards_levels_tab_imports.dart';
 
 class BoardsLevelsTab extends StatelessWidget {
   const BoardsLevelsTab({

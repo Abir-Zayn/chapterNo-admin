@@ -1,6 +1,6 @@
 // Admin sign-in screen hosting the centered LoginForm card.
 // Uses solid #FFFFFF card on #FCFCFB canvas with 1dp #E4E4E7 border.
-import 'login_screen_imports.dart';
+import 'imports/login_screen_imports.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});

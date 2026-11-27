@@ -1,6 +1,6 @@
 // Pure-Dart domain entity for a Bangladesh Education Board (e.g., Dhaka).
 // Maps pg_graphql boardsCollection nodes without Flutter imports.
-import 'curriculum_entity_imports.dart';
+import 'imports/curriculum_entity_imports.dart';
 
 class Board extends Equatable {
   const Board({

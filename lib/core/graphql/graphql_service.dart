@@ -1,6 +1,6 @@
 // Lightweight Supabase pg_graphql client with dynamic JWT header injection.
 // Sends queries and mutations to /graphql/v1 and maps errors into AppFailure.
-import 'graphql_service_imports.dart';
+import 'imports/graphql_service_imports.dart';
 
 abstract interface class GraphQLService {
   Future<Map<String, dynamic>> execute({

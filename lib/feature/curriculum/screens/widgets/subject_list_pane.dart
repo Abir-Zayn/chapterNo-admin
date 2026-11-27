@@ -1,6 +1,6 @@
 // Subjects master column with Academic Group filter chips and CRUD actions.
 // Renders Bangla titles in Hind Siliguri alongside NCTB and group badges.
-import 'subject_list_pane_imports.dart';
+import 'imports/subject_list_pane_imports.dart';
 
 class SubjectListPane extends StatelessWidget {
   const SubjectListPane({

@@ -1,6 +1,6 @@
 // Solid 1dp-bordered status badges for editorial workflow and admin roles.
 // Avoids translucent glass effects while keeping strong contrast.
-import 'status_badges_imports.dart';
+import 'imports/status_badges_imports.dart';
 
 class StatusBadge extends StatelessWidget {
   const StatusBadge({

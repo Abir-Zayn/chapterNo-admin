@@ -1,6 +1,6 @@
 // Create/Edit modal and archive confirmation dialogs for curriculum nodes.
 // Supports Bangla UTF-8 input, auto-slugified codes, and inline error display.
-import 'curriculum_node_dialog_imports.dart';
+import 'imports/curriculum_node_dialog_imports.dart';
 
 class CurriculumNodeFormValues {
   const CurriculumNodeFormValues({

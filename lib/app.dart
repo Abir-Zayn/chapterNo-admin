@@ -1,6 +1,6 @@
 // Root widget wiring RepositoryProvider, BlocProvider, and GoRouter.
 // Uses constructor dependency injection without Riverpod or get_it.
-import 'app_imports.dart';
+import 'imports/app_imports.dart';
 
 class ChapterNoAdminApp extends StatefulWidget {
   const ChapterNoAdminApp({

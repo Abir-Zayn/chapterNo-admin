@@ -1,6 +1,6 @@
 // Pure-Dart domain entity for a top-level Education Level (e.g., SSC).
 // Maps pg_graphql educationLevelsCollection nodes without Flutter imports.
-import 'curriculum_entity_imports.dart';
+import 'imports/curriculum_entity_imports.dart';
 
 class EducationLevel extends Equatable {
   const EducationLevel({

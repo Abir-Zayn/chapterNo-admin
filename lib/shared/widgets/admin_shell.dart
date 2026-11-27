@@ -1,6 +1,6 @@
 // Responsive desktop sidebar shell with SelectionArea and solid 1dp dividers.
 // Hosts Curriculum, MCQ Studio, Bulk Import, Question Bank, and Settings.
-import 'admin_shell_imports.dart';
+import 'imports/admin_shell_imports.dart';
 
 class AdminShell extends StatelessWidget {
   const AdminShell({

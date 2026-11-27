@@ -1,6 +1,6 @@
 // Branding header displayed at the top of the admin sign-in card.
 // Renders the ChapterNo badge, workspace title, and subtitle.
-import 'login_header_imports.dart';
+import 'imports/login_header_imports.dart';
 
 class LoginHeader extends StatelessWidget {
   const LoginHeader({super.key});

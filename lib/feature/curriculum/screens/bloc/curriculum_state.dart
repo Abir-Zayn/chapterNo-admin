@@ -1,6 +1,6 @@
 // Immutable state for Curriculum Catalogue browsing, filtering, and editing.
 // Holds cascading selections across Level -> Subject -> Chapter -> Topic.
-import 'curriculum_state_imports.dart';
+import 'imports/curriculum_state_imports.dart';
 
 enum CurriculumStatus { initial, loading, ready, error }
 

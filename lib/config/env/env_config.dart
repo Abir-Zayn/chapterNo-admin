@@ -1,6 +1,6 @@
 // Compile-time Supabase configuration loaded via --dart-define-from-file=.env.
 // Enforces non-empty HTTPS URL and rejects secret or service_role keys.
-import 'env_config_imports.dart';
+import 'imports/env_config_imports.dart';
 
 final class EnvConfig {
   const EnvConfig._({

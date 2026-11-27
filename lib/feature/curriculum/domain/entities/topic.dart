@@ -1,6 +1,6 @@
 // Pure-Dart domain entity for a granular Topic under a Chapter.
 // Maps pg_graphql topicsCollection nodes without Flutter imports.
-import 'curriculum_entity_imports.dart';
+import 'imports/curriculum_entity_imports.dart';
 
 class Topic extends Equatable {
   const Topic({

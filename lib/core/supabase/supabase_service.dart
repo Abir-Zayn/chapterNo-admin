@@ -1,6 +1,6 @@
 // Thin abstraction over SupabaseClient for auth and RPC invocations.
 // Allows data repositories to be unit-tested cleanly without live network calls.
-import 'supabase_service_imports.dart';
+import 'imports/supabase_service_imports.dart';
 
 abstract interface class SupabaseService {
   Session? get currentSession;

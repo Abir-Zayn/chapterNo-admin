@@ -1,6 +1,6 @@
 // Admin workspace settings view displaying verified profile and project host.
 // Never exposes secret keys; offers explicit sign-out action.
-import 'settings_screen_imports.dart';
+import 'imports/settings_screen_imports.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key, required this.envConfig});

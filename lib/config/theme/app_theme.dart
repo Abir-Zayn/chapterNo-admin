@@ -1,6 +1,6 @@
 // Light-first ChapterNo academic theme tokens and typography helpers.
 // Enforces solid surfaces (#FFFFFF), 1dp borders (#E4E4E7), and zero blur.
-import 'app_theme_imports.dart';
+import 'imports/app_theme_imports.dart';
 
 abstract final class AppColors {
   static const Color canvas = Color(0xFFFCFCFB);

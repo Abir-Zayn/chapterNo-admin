@@ -1,6 +1,6 @@
 // Shared loading, empty, validation-error banner, and retry widgets.
 // Uses solid white #FFFFFF cards with 1dp #E4E4E7 borders and zero blur.
-import 'state_views_imports.dart';
+import 'imports/state_views_imports.dart';
 
 class AppLoadingView extends StatelessWidget {
   const AppLoadingView({super.key, this.message = 'Loading workspace...'});

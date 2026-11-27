@@ -1,6 +1,6 @@
 // Cubit orchestrating Curriculum Catalogue loading, selection, and filtering.
 // Mutations and reorders are split into curriculum_mutations_cubit.dart.
-import 'curriculum_cubit_imports.dart';
+import 'imports/curriculum_cubit_imports.dart';
 
 export 'curriculum_mutations_cubit.dart';
 

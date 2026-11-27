@@ -1,6 +1,6 @@
 // Maps Supabase pg_graphql errors[] and HTTP status codes into AppFailure.
 // Translates Postgres 23505, 23503, and 42501 into clear admin messages.
-import 'graphql_error_mapper_imports.dart';
+import 'imports/graphql_error_mapper_imports.dart';
 
 abstract final class GraphQLErrorMapper {
   static AppFailure mapErrors(List<dynamic> errors) {

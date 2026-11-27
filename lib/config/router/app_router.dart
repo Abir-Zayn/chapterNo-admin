@@ -1,6 +1,6 @@
 // Application router with server-verified admin role guard and desktop ShellRoute.
 // Redirects non-admins and unauthenticated users to /login immediately.
-import 'app_router_imports.dart';
+import 'imports/app_router_imports.dart';
 
 class AppRouter {
   AppRouter({required AuthCubit authCubit, required this._envConfig})

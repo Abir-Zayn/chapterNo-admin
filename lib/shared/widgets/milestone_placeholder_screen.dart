@@ -1,6 +1,6 @@
 // Workspace placeholder card for M2-M5 routes prior to milestone rollout.
 // Keeps all 5 shell destinations navigable during Milestone 1 verification.
-import 'milestone_placeholder_screen_imports.dart';
+import 'imports/milestone_placeholder_screen_imports.dart';
 
 class MilestonePlaceholderScreen extends StatelessWidget {
   const MilestonePlaceholderScreen({

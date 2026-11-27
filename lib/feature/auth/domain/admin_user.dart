@@ -1,6 +1,6 @@
 // Pure-Dart domain entity representing an authorized ChapterNo admin.
 // Maps server-side public.admin_users rows without Flutter or Supabase imports.
-import 'admin_user_imports.dart';
+import 'imports/admin_user_imports.dart';
 
 class AdminUser extends Equatable {
   const AdminUser({

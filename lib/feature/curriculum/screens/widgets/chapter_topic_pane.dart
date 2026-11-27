@@ -1,6 +1,6 @@
 // Chapters and Topics detail panes with drag-to-reorder and role-gated CRUD.
 // Supports ReorderableListView handles, archive/restore, and safe topic delete.
-import 'chapter_topic_pane_imports.dart';
+import 'imports/chapter_topic_pane_imports.dart';
 
 class ChapterListPane extends StatelessWidget {
   const ChapterListPane({

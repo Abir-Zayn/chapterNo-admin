@@ -1,6 +1,6 @@
 // Typed domain and application failures for ChapterNo Admin Dashboard.
 // Maps infrastructure and validation errors into predictable UI messages.
-import 'app_failure_imports.dart';
+import 'imports/app_failure_imports.dart';
 
 sealed class AppFailure extends Equatable implements Exception {
   const AppFailure(this.message, {this.code});
