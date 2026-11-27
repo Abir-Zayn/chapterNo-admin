@@ -81,19 +81,21 @@ class _BootstrapErrorApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      home: Scaffold(
-        backgroundColor: AppColors.canvas,
-        body: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 520),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: AppErrorBanner(
-                title: 'Configuration Error',
-                message: message,
+    return FTheme(
+      data: lightTheme,
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: lightTheme.toApproximateMaterialTheme(),
+        home: FScaffold(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: AppErrorBanner(
+                  title: 'Configuration Error',
+                  message: message,
+                ),
               ),
             ),
           ),

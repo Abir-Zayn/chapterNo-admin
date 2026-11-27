@@ -1,4 +1,4 @@
-// Root widget wiring RepositoryProvider, BlocProvider, and GoRouter.
+// Root widget wiring RepositoryProvider, BlocProvider, GoRouter, and the Forui theme.
 // Uses constructor dependency injection without Riverpod or get_it.
 import 'imports/app_imports.dart';
 
@@ -67,10 +67,18 @@ class _ChapterNoAdminAppState extends State<ChapterNoAdminApp> {
         return MaterialApp.router(
           title: 'ChapterNo Admin Dashboard',
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.light(),
-          darkTheme: AppTheme.dark(),
+          supportedLocales: FLocalizations.supportedLocales,
+          localizationsDelegates: const [...FLocalizations.localizationsDelegates],
+          theme: lightTheme.toApproximateMaterialTheme(),
+          darkTheme: darkTheme.toApproximateMaterialTheme(),
           themeMode: themeMode,
           routerConfig: _appRouter.router,
+          builder: (context, child) => FTheme(
+            data: Theme.brightnessOf(context) == Brightness.light
+                ? lightTheme
+                : darkTheme,
+            child: FToaster(child: FTooltipGroup(child: child!)),
+          ),
         );
       },
     );
