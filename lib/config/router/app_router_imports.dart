@@ -6,6 +6,7 @@ export 'package:chapterno_admin/config/env/env_config.dart';
 export 'package:chapterno_admin/feature/auth/screens/bloc/auth_cubit.dart';
 export 'package:chapterno_admin/feature/auth/screens/bloc/auth_state.dart';
 export 'package:chapterno_admin/feature/auth/screens/login_screen.dart';
+export 'package:chapterno_admin/feature/curriculum/screens/curriculum_screen.dart';
 export 'package:chapterno_admin/feature/settings/screens/settings_screen.dart';
 export 'package:chapterno_admin/shared/widgets/admin_shell.dart';
 export 'package:chapterno_admin/shared/widgets/milestone_placeholder_screen.dart';

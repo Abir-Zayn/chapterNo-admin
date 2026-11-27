@@ -42,9 +42,18 @@ Future<void> bootstrap() async {
 
       final supabaseService = LiveSupabaseService(Supabase.instance.client);
       final authRepository = SupabaseAuthRepository(supabaseService);
+      final graphqlService = SupabaseGraphQLService(
+        envConfig: envConfig,
+        supabaseService: supabaseService,
+      );
+      final curriculumRepository = GraphQLCurriculumRepository(graphqlService);
 
       runApp(
-        ChapterNoAdminApp(envConfig: envConfig, authRepository: authRepository),
+        ChapterNoAdminApp(
+          envConfig: envConfig,
+          authRepository: authRepository,
+          curriculumRepository: curriculumRepository,
+        ),
       );
     },
     (error, stack) {
