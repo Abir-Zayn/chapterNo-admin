@@ -47,12 +47,14 @@ Future<void> bootstrap() async {
         supabaseService: supabaseService,
       );
       final curriculumRepository = GraphQLCurriculumRepository(graphqlService);
+      final bulkImportRepository = SupabaseBulkImportRepository(supabaseService);
 
       runApp(
         ChapterNoAdminApp(
           envConfig: envConfig,
           authRepository: authRepository,
           curriculumRepository: curriculumRepository,
+          bulkImportRepository: bulkImportRepository,
         ),
       );
     },

@@ -49,12 +49,7 @@ class AppRouter {
             ),
             GoRoute(
               path: '/bulk-import',
-              builder: (_, _) => const MilestonePlaceholderScreen(
-                title: 'Bulk CSV / JSON Importer',
-                milestoneCode: 'Milestone 4',
-                description: 'Validate UTF-8 Google Sheets exports, reject legacy Bijoy ANSI text, preview row errors, and batch-upsert via external_code.',
-                icon: PhosphorIconsRegular.fileCsv,
-              ),
+              builder: (_, _) => const BulkImportScreen(),
             ),
             GoRoute(
               path: '/question-bank',

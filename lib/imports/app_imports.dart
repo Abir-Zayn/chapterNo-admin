@@ -6,6 +6,8 @@ export 'package:chapterno_admin/config/theme/app_theme.dart';
 export 'package:chapterno_admin/config/theme/theme_cubit.dart';
 export 'package:chapterno_admin/feature/auth/domain/auth_repository.dart';
 export 'package:chapterno_admin/feature/auth/screens/bloc/auth_cubit.dart';
+export 'package:chapterno_admin/feature/bulk_import/domain/repositories/bulk_import_repository.dart';
+export 'package:chapterno_admin/feature/bulk_import/screens/bloc/bulk_import_cubit.dart';
 export 'package:chapterno_admin/feature/curriculum/domain/repositories/curriculum_repository.dart';
 export 'package:chapterno_admin/feature/curriculum/screens/bloc/curriculum_cubit.dart';
 export 'package:material_ui/material_ui.dart';
