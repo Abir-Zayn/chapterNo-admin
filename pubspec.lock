@@ -201,6 +201,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.4.1"
+  dart_style:
+    dependency: transitive
+    description:
+      name: dart_style
+      sha256: a0e4f65339b31eb6a9e6a12e14b4682a48d46fbc54a82f4a702396fbdbac63a7
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.14"
   dbus:
     dependency: transitive
     description:
@@ -349,6 +357,38 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  forui:
+    dependency: "direct main"
+    description:
+      name: forui
+      sha256: de5e4b3a2f6601c76dfaf49a49e1c1dc854867ce1399df992ce5657e251799de
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.28.0"
+  forui_cli:
+    dependency: "direct dev"
+    description:
+      name: forui_cli
+      sha256: "448a756064befddf6168bb84d4e0121dbb0e721cce8ffa3d73fa3356e3f929e5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.28.0"
+  forui_lucide:
+    dependency: transitive
+    description:
+      name: forui_lucide
+      sha256: c7876b1007161b4a6f5d8d830bfdd3f1a0e6f4ccd810a472a936a6caa9102ffb
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.28.0"
+  forui_phosphor:
+    dependency: "direct main"
+    description:
+      name: forui_phosphor
+      sha256: "83f6e1699a79776f77fe9f563fdf195efc5cce10df779161abc7852f54bb5a69"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.28.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -914,6 +954,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
+  sugar:
+    dependency: transitive
+    description:
+      name: sugar
+      sha256: a0a97f1d3552a3ef4cbec7c6e62c7b52c151cd5c11e984e8311700a918f73dc5
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0"
   supabase:
     dependency: transitive
     description:
@@ -1170,6 +1218,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.4"
+  yaml_edit:
+    dependency: transitive
+    description:
+      name: yaml_edit
+      sha256: "07c9e63ba42519745182b88ca12264a7ba2484d8239958778dfe4d44fe760488"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.4"
   yet_another_json_isolate:
     dependency: transitive
     description:
@@ -1180,4 +1236,4 @@ packages:
     version: "2.1.1"
 sdks:
   dart: ">=3.14.0 <4.0.0"
-  flutter: ">=3.47.0"
+  flutter: ">=3.50.0"

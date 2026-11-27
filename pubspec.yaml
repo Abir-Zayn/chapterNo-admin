@@ -44,6 +44,8 @@ dependencies:
   phosphoricons_flutter: ^1.1.1
   file_picker: ^13.4.1
   flutter_math_fork: ^0.7.4
+  forui: ^0.28.0
+  forui_phosphor: ^0.28.0
 
 dev_dependencies:
   flutter_test:
@@ -57,6 +59,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   bloc_test: ^10.0.1
   mocktail: ^1.0.5
+  forui_cli: ^0.28.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -67,6 +70,17 @@ flutter:
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
+  fonts:
+    - family: Geist
+      fonts:
+        - asset: assets/fonts/Geist/Geist.ttf
+        - asset: assets/fonts/Geist/Geist-Italic.ttf
+          style: italic
+    - family: Raleway
+      fonts:
+        - asset: assets/fonts/Raleway/Raleway.ttf
+        - asset: assets/fonts/Raleway/Raleway-Italic.ttf
+          style: italic
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
