@@ -1,6 +1,6 @@
 // Mutation and reorder handlers for CurriculumCubit.
 // Isolates create, update, archive/restore, delete, and reorder operations.
-import 'curriculum_mutations_cubit_imports.dart';
+import 'imports/curriculum_mutations_cubit_imports.dart';
 
 extension CurriculumMutations on CurriculumCubit {
   Future<String?> saveEducationLevel({
@@ -240,7 +240,11 @@ extension CurriculumMutations on CurriculumCubit {
       );
     } on AppFailure catch (failure) {
       applyState(
-        state.copyWith(chapters: current, errorMessage: failure.message),
+        state.copyWith(
+          chapters: current,
+          errorMessage: failure.message,
+          errorStatusCode: failure.statusCode,
+        ),
       );
     }
   }
@@ -275,6 +279,7 @@ extension CurriculumMutations on CurriculumCubit {
         state.copyWith(
           chapters: previousChapters,
           errorMessage: failure.message,
+          errorStatusCode: failure.statusCode,
         ),
       );
     }

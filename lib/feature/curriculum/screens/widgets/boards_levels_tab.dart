@@ -1,6 +1,6 @@
 // Boards & Education Levels management tab (mutations gated to super_admin).
 // Responsive two-pane layout on desktop, stacked on mobile screens.
-import 'boards_levels_tab_imports.dart';
+import 'imports/boards_levels_tab_imports.dart';
 
 class BoardsLevelsTab extends StatelessWidget {
   const BoardsLevelsTab({
@@ -93,11 +93,12 @@ class _LevelsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: palette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -143,13 +144,13 @@ class _LevelsCard extends StatelessWidget {
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? AppColors.primaryTint
-                                : AppColors.canvas,
+                                ? palette.primaryTint
+                                : palette.canvas,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: isSelected
-                                  ? AppColors.primary
-                                  : AppColors.border,
+                                  ? palette.primary
+                                  : palette.border,
                             ),
                           ),
                           child: Row(
@@ -167,9 +168,9 @@ class _LevelsCard extends StatelessWidget {
                                     ),
                                     Text(
                                       '${level.nameEn} (${level.code})',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 12,
-                                        color: AppColors.textSecondary,
+                                        color: palette.textSecondary,
                                       ),
                                     ),
                                   ],
@@ -236,11 +237,12 @@ class _BoardsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: palette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -287,9 +289,9 @@ class _BoardsCard extends StatelessWidget {
                       return Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppColors.canvas,
+                          color: palette.canvas,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppColors.border),
+                          border: Border.all(color: palette.border),
                         ),
                         child: Row(
                           children: [
@@ -306,9 +308,9 @@ class _BoardsCard extends StatelessWidget {
                                   ),
                                   Text(
                                     '${board.nameEn} (${board.code})',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
-                                      color: AppColors.textSecondary,
+                                      color: palette.textSecondary,
                                     ),
                                   ),
                                 ],

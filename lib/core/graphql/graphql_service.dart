@@ -1,6 +1,6 @@
 // Lightweight Supabase pg_graphql client with dynamic JWT header injection.
 // Sends queries and mutations to /graphql/v1 and maps errors into AppFailure.
-import 'graphql_service_imports.dart';
+import 'imports/graphql_service_imports.dart';
 
 abstract interface class GraphQLService {
   Future<Map<String, dynamic>> execute({
@@ -40,11 +40,17 @@ final class SupabaseGraphQLService implements GraphQLService {
       );
     }
 
+    final opLabel = operationName ?? 'AnonymousOperation';
     final payload = <String, dynamic>{
       'query': document,
       'variables': variables,
       'operationName': ?operationName,
     };
+
+    AppLogger.log(
+      '[GraphQL] -> $opLabel | endpoint=$_endpoint | variables=${jsonEncode(variables)}',
+    );
+    final stopwatch = Stopwatch()..start();
 
     late final Response response;
     try {
@@ -60,23 +66,46 @@ final class SupabaseGraphQLService implements GraphQLService {
           )
           .timeout(const Duration(seconds: 25));
     } on TimeoutException {
+      stopwatch.stop();
+      AppLogger.log(
+        '[GraphQL][TIMEOUT] $opLabel (${stopwatch.elapsedMilliseconds}ms)',
+      );
       throw const NetworkFailure(
-        'Request timed out while contacting Supabase GraphQL.',
+        'Request timed out. Please check your connection and try again.',
         code: 'timeout',
+        statusCode: 504,
       );
     } on ClientException catch (error) {
-      throw NetworkFailure(
-        'Network error contacting Supabase GraphQL: ${error.message}',
+      stopwatch.stop();
+      AppLogger.log(
+        '[GraphQL][NETWORK_ERROR] $opLabel (${stopwatch.elapsedMilliseconds}ms): ${error.message}',
+      );
+      throw const NetworkFailure(
+        'Unable to connect to the server. Please check your network and try again.',
         code: 'client_error',
+        statusCode: 503,
       );
     } catch (error) {
-      throw NetworkFailure(
-        'Failed to contact Supabase GraphQL: $error',
+      stopwatch.stop();
+      AppLogger.log(
+        '[GraphQL][ERROR] $opLabel (${stopwatch.elapsedMilliseconds}ms): $error',
+      );
+      throw const NetworkFailure(
+        'Unable to connect to the server. Please try again.',
         code: 'network_error',
+        statusCode: 503,
       );
     }
 
+    stopwatch.stop();
+    AppLogger.log(
+      '[GraphQL] <- $opLabel (${stopwatch.elapsedMilliseconds}ms) | HTTP ${response.statusCode}',
+    );
+
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      AppLogger.log(
+        '[GraphQL][HTTP_ERROR] $opLabel | status=${response.statusCode} | body=${response.body}',
+      );
       throw GraphQLErrorMapper.mapHttpStatus(
         response.statusCode,
         response.body,
@@ -87,21 +116,41 @@ final class SupabaseGraphQLService implements GraphQLService {
     try {
       decoded = jsonDecode(response.body);
     } catch (_) {
-      throw const UnexpectedFailure('Invalid JSON returned from GraphQL API.');
+      AppLogger.log(
+        '[GraphQL][JSON_ERROR] $opLabel | rawBody=${response.body}',
+      );
+      throw const UnexpectedFailure(
+        'Something went wrong while reading the server response.',
+        code: 'invalid_json',
+        statusCode: 500,
+      );
     }
 
     if (decoded is! Map<String, dynamic>) {
-      throw const UnexpectedFailure('Unexpected GraphQL response envelope.');
+      AppLogger.log('[GraphQL][ENVELOPE_ERROR] $opLabel | decoded=$decoded');
+      throw const UnexpectedFailure(
+        'Something went wrong while reading the server response.',
+        code: 'invalid_envelope',
+        statusCode: 500,
+      );
     }
 
     final errors = decoded['errors'];
     if (errors is List && errors.isNotEmpty) {
+      AppLogger.log(
+        '[GraphQL][GRAPHQL_ERRORS] $opLabel | errors=${jsonEncode(errors)}',
+      );
       throw GraphQLErrorMapper.mapErrors(errors);
     }
 
     final data = decoded['data'];
     if (data is! Map<String, dynamic>) {
-      throw const UnexpectedFailure('GraphQL response did not include data.');
+      AppLogger.log('[GraphQL][DATA_ERROR] $opLabel | body=${response.body}');
+      throw const UnexpectedFailure(
+        'Something went wrong while loading data. Please try again.',
+        code: 'missing_data',
+        statusCode: 500,
+      );
     }
 
     return data;

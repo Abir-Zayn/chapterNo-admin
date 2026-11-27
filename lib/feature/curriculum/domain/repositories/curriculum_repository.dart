@@ -1,6 +1,6 @@
 // Abstract repository contract for Curriculum Catalogue reads and writes.
 // Keeps domain and Cubit layers decoupled from pg_graphql implementation details.
-import 'curriculum_repository_imports.dart';
+import 'imports/curriculum_repository_imports.dart';
 
 abstract interface class CurriculumRepository {
   Future<CurriculumRoot> fetchRoot();

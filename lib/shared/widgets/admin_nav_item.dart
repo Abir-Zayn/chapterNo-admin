@@ -1,6 +1,6 @@
 // Navigation destination model and canonical sidebar item definitions.
 // Keeps AdminShell concise and centralizes top-level workspace routes.
-import 'admin_nav_item_imports.dart';
+import 'imports/admin_nav_item_imports.dart';
 
 class AdminNavItem {
   const AdminNavItem({

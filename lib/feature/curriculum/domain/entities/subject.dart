@@ -1,6 +1,6 @@
 // Pure-Dart domain entity for a curriculum Subject (e.g., পদার্থবিজ্ঞান).
 // Maps pg_graphql subjectsCollection nodes with bilingual labels and group.
-import 'curriculum_entity_imports.dart';
+import 'imports/curriculum_entity_imports.dart';
 
 class Subject extends Equatable {
   const Subject({

@@ -1,6 +1,6 @@
 // Shared loading, empty, validation-error banner, and retry widgets.
 // Uses solid white #FFFFFF cards with 1dp #E4E4E7 borders and zero blur.
-import 'state_views_imports.dart';
+import 'imports/state_views_imports.dart';
 
 class AppLoadingView extends StatelessWidget {
   const AppLoadingView({super.key, this.message = 'Loading workspace...'});
@@ -9,6 +9,7 @@ class AppLoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -22,7 +23,7 @@ class AppLoadingView extends StatelessWidget {
           Text(
             message,
             style: Theme.of(context).textTheme.bodyMedium
-                ?.copyWith(color: AppColors.textSecondary),
+                ?.copyWith(color: palette.textSecondary),
           ),
         ],
       ),
@@ -46,19 +47,20 @@ class AppEmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 420),
         padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: palette.surface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: palette.border),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 32, color: AppColors.textSecondary),
+            Icon(icon, size: 32, color: palette.textSecondary),
             const SizedBox(height: 12),
             Text(
               title,
@@ -71,7 +73,7 @@ class AppEmptyView extends StatelessWidget {
               subtitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall
-                  ?.copyWith(color: AppColors.textSecondary),
+                  ?.copyWith(color: palette.textSecondary),
             ),
             if (action != null) ...[const SizedBox(height: 18), action!],
           ],
@@ -95,23 +97,24 @@ class AppErrorBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.errorTint,
+        color: palette.errorTint,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.error.withValues(alpha: 0.35)),
+        border: Border.all(color: palette.error.withValues(alpha: 0.35)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 1),
+          Padding(
+            padding: const EdgeInsets.only(top: 1),
             child: Icon(
               PhosphorIconsRegular.warningCircle,
               size: 18,
-              color: AppColors.error,
+              color: palette.error,
             ),
           ),
           const SizedBox(width: 10),
@@ -122,8 +125,8 @@ class AppErrorBanner extends StatelessWidget {
                 if (title != null) ...[
                   Text(
                     title!,
-                    style: const TextStyle(
-                      color: AppColors.error,
+                    style: TextStyle(
+                      color: palette.error,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
@@ -132,10 +135,7 @@ class AppErrorBanner extends StatelessWidget {
                 ],
                 Text(
                   message,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: palette.textPrimary, fontSize: 13),
                 ),
               ],
             ),
@@ -178,4 +178,100 @@ class AppRetryView extends StatelessWidget {
       ),
     );
   }
+}
+
+class AppErrorScene extends StatelessWidget {
+  const AppErrorScene({
+    super.key,
+    required this.message,
+    required this.onRetry,
+    this.statusCode,
+    this.onSignOut,
+  });
+
+  final int? statusCode;
+  final String message;
+  final VoidCallback onRetry;
+  final VoidCallback? onSignOut;
+
+  @override
+  Widget build(BuildContext context) {
+    final code = statusCode ?? 500;
+    final (title, icon) = switch (code) {
+      401 => ('Session Expired (401)', PhosphorIconsRegular.lockKey),
+      403 => ('Access Denied (403)', PhosphorIconsRegular.shieldWarning),
+      404 => ('Not Found (404)', PhosphorIconsRegular.magnifyingGlassMinus),
+      503 ||
+      504 => ('Connection Unavailable ($code)', PhosphorIconsRegular.wifiSlash),
+      _ => (
+        'Something Went Wrong ($code)',
+        PhosphorIconsRegular.warningOctagon,
+      ),
+    };
+
+    return AppEmptyView(
+      title: title,
+      subtitle: message,
+      icon: icon,
+      action: Wrap(
+        spacing: 10,
+        runSpacing: 8,
+        alignment: WrapAlignment.center,
+        children: [
+          if (code == 401 && onSignOut != null)
+            FilledButton.icon(
+              onPressed: onSignOut,
+              icon: const Icon(PhosphorIconsRegular.signOut, size: 16),
+              label: const Text('Sign In Again'),
+            )
+          else
+            FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(PhosphorIconsRegular.arrowClockwise, size: 16),
+              label: const Text('Retry'),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+void showAppErrorSnackBar(
+  BuildContext context, {
+  required String message,
+  int? statusCode,
+}) {
+  final palette = AppPalette.of(context);
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  if (messenger == null) return;
+  final prefix = statusCode != null ? 'Error $statusCode: ' : 'Error: ';
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: palette.primary,
+        content: Row(
+          children: [
+            Icon(
+              PhosphorIconsRegular.warningCircle,
+              size: 18,
+              color: palette.onPrimary,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                '$prefix$message',
+                style: TextStyle(color: palette.onPrimary, fontSize: 13),
+              ),
+            ),
+          ],
+        ),
+        action: SnackBarAction(
+          label: 'Dismiss',
+          textColor: palette.onPrimary,
+          onPressed: () => messenger.hideCurrentSnackBar(),
+        ),
+      ),
+    );
 }

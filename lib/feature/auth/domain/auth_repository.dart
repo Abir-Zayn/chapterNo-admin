@@ -1,6 +1,6 @@
 // Pure-Dart repository contract for admin authentication and role verification.
 // Implemented by data/SupabaseAuthRepository and mocked cleanly in unit tests.
-import 'auth_repository_imports.dart';
+import 'imports/auth_repository_imports.dart';
 
 abstract interface class AuthRepository {
   /// Restores an existing Supabase session and verifies admin status via RPC.

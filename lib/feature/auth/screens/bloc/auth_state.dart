@@ -1,6 +1,6 @@
 // Immutable authentication state consumed by AuthCubit and AppRouter.
 // Tracks session check, active admin user, and unauthorized student notices.
-import 'auth_state_imports.dart';
+import 'imports/auth_state_imports.dart';
 
 enum AuthStatus {
   initial,

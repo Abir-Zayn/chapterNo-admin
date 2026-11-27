@@ -1,6 +1,6 @@
 // Pure-Dart domain entity for a textbook Chapter and its nested Topics.
 // Maps pg_graphql chaptersCollection nodes without Flutter imports.
-import 'curriculum_entity_imports.dart';
+import 'imports/curriculum_entity_imports.dart';
 import 'topic.dart';
 
 class Chapter extends Equatable {

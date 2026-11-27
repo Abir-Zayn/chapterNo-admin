@@ -1,14 +1,15 @@
 // Solid 1dp-bordered status badges for editorial workflow and admin roles.
-// Avoids translucent glass effects while keeping strong contrast.
-import 'status_badges_imports.dart';
+// Avoids translucent glass effects while adapting cleanly to light/dark themes.
+import 'imports/status_badges_imports.dart';
 
 class StatusBadge extends StatelessWidget {
   const StatusBadge({
     super.key,
     required this.label,
-    required this.backgroundColor,
-    required this.foregroundColor,
+    this.backgroundColor,
+    this.foregroundColor,
     this.borderColor,
+    this.isActive = false,
   });
 
   factory StatusBadge.rights(String rightsStatus) {
@@ -28,33 +29,38 @@ class StatusBadge extends StatelessWidget {
     );
   }
 
-  factory StatusBadge.neutral(String label) {
-    return StatusBadge(
-      label: label,
-      backgroundColor: AppColors.surfaceSubtle,
-      foregroundColor: AppColors.textSecondary,
-      borderColor: AppColors.border,
-    );
-  }
+  factory StatusBadge.neutral(String label) => StatusBadge(label: label);
+
+  factory StatusBadge.active(String label) =>
+      StatusBadge(label: label, isActive: true);
 
   final String label;
-  final Color backgroundColor;
-  final Color foregroundColor;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
   final Color? borderColor;
+  final bool isActive;
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
+    final bg =
+        backgroundColor ?? (isActive ? palette.primary : palette.surfaceSubtle);
+    final fg =
+        foregroundColor ??
+        (isActive ? palette.onPrimary : palette.textSecondary);
+    final border = borderColor ?? (isActive ? palette.primary : palette.border);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: backgroundColor,
+        color: bg,
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: borderColor ?? AppColors.border),
+        border: Border.all(color: border),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: foregroundColor,
+          color: fg,
           fontSize: 11.5,
           fontWeight: FontWeight.w600,
         ),

@@ -1,14 +1,15 @@
 // Admin sign-in screen hosting the centered LoginForm card.
 // Uses solid #FFFFFF card on #FCFCFB canvas with 1dp #E4E4E7 border.
-import 'login_screen_imports.dart';
+import 'imports/login_screen_imports.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Scaffold(
-      backgroundColor: AppColors.canvas,
+      backgroundColor: palette.canvas,
       body: SelectionArea(
         child: Center(
           child: SingleChildScrollView(
@@ -18,9 +19,9 @@ class LoginScreen extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(28),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: palette.surface,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: palette.border),
                 ),
                 child: const LoginForm(),
               ),

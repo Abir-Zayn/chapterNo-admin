@@ -1,6 +1,6 @@
 // Subjects master column with Academic Group filter chips and CRUD actions.
 // Renders Bangla titles in Hind Siliguri alongside NCTB and group badges.
-import 'subject_list_pane_imports.dart';
+import 'imports/subject_list_pane_imports.dart';
 
 class SubjectListPane extends StatelessWidget {
   const SubjectListPane({
@@ -30,11 +30,12 @@ class SubjectListPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: palette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -64,16 +65,37 @@ class SubjectListPane extends StatelessWidget {
             child: Row(
               children: [
                 ChoiceChip(
-                  label: Text('সকল', style: AppTypography.bangla(fontSize: 13)),
+                  showCheckmark: false,
+                  label: Text(
+                    'সকল',
+                    style: AppTypography.bangla(
+                      fontSize: 13,
+                      fontWeight: selectedGroup == null
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      color: selectedGroup == null
+                          ? palette.onPrimary
+                          : palette.textPrimary,
+                    ),
+                  ),
                   selected: selectedGroup == null,
                   onSelected: (_) => onSelectGroup(null),
                 ),
                 const SizedBox(width: 6),
                 for (final group in AcademicGroup.values) ...[
                   ChoiceChip(
+                    showCheckmark: false,
                     label: Text(
                       group.labelBn,
-                      style: AppTypography.bangla(fontSize: 13),
+                      style: AppTypography.bangla(
+                        fontSize: 13,
+                        fontWeight: selectedGroup == group
+                            ? FontWeight.w600
+                            : FontWeight.w500,
+                        color: selectedGroup == group
+                            ? palette.onPrimary
+                            : palette.textPrimary,
+                      ),
                     ),
                     selected: selectedGroup == group,
                     onSelected: (_) => onSelectGroup(group),
@@ -136,16 +158,17 @@ class _SubjectTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryTint : AppColors.canvas,
+          color: isSelected ? palette.primaryTint : palette.canvas,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected ? palette.primary : palette.border,
           ),
         ),
         child: Column(
@@ -159,9 +182,7 @@ class _SubjectTile extends StatelessWidget {
                     style: AppTypography.bangla(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: isSelected
-                          ? AppColors.primary
-                          : AppColors.textPrimary,
+                      color: isSelected ? palette.primary : palette.textPrimary,
                     ),
                   ),
                 ),
@@ -189,10 +210,7 @@ class _SubjectTile extends StatelessWidget {
             ),
             Text(
               subject.nameEn,
-              style: const TextStyle(
-                fontSize: 12.5,
-                color: AppColors.textSecondary,
-              ),
+              style: TextStyle(fontSize: 12.5, color: palette.textSecondary),
             ),
             const SizedBox(height: 6),
             Wrap(

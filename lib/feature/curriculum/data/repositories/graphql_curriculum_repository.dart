@@ -1,6 +1,6 @@
 // GraphQL implementation of CurriculumRepository backed by Supabase pg_graphql.
 // Enforces affectedCount checks and maps collection edges to domain entities.
-import 'graphql_curriculum_repository_imports.dart';
+import 'imports/graphql_curriculum_repository_imports.dart';
 
 final class GraphQLCurriculumRepository implements CurriculumRepository {
   GraphQLCurriculumRepository(this._graphql);

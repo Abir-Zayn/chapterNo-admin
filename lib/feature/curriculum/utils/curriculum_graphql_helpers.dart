@@ -1,6 +1,6 @@
 // Pure-Dart GraphQL payload and response helpers for Curriculum repositories.
 // Handles archive patches, nullable trimming, and pg_graphql edge/record parsing.
-import 'curriculum_graphql_helpers_imports.dart';
+import 'imports/curriculum_graphql_helpers_imports.dart';
 
 abstract final class CurriculumGraphQLHelpers {
   static Map<String, dynamic> archivePatch(bool isActive) {

@@ -1,6 +1,6 @@
 // Pure-Dart list selection and reorder helpers for CurriculumCubit.
 // Keeps ID fallback, immutable list moves, and topic replacement testable.
-import 'curriculum_list_helpers_imports.dart';
+import 'imports/curriculum_list_helpers_imports.dart';
 
 abstract final class CurriculumListHelpers {
   static String? pickPreferredId(String? preferred, List<String> available) {

@@ -1,6 +1,6 @@
 // Immutable state for Curriculum Catalogue browsing, filtering, and editing.
 // Holds cascading selections across Level -> Subject -> Chapter -> Topic.
-import 'curriculum_state_imports.dart';
+import 'imports/curriculum_state_imports.dart';
 
 enum CurriculumStatus { initial, loading, ready, error }
 
@@ -22,6 +22,7 @@ class CurriculumState extends Equatable {
     this.isLoadingChapters = false,
     this.isMutating = false,
     this.errorMessage,
+    this.errorStatusCode,
   });
 
   final CurriculumStatus status;
@@ -40,6 +41,7 @@ class CurriculumState extends Equatable {
   final bool isLoadingChapters;
   final bool isMutating;
   final String? errorMessage;
+  final int? errorStatusCode;
 
   List<EducationLevel> get visibleLevels => showArchived
       ? levels
@@ -172,6 +174,7 @@ class CurriculumState extends Equatable {
     bool? isLoadingChapters,
     bool? isMutating,
     String? errorMessage,
+    int? errorStatusCode,
     bool clearError = false,
   }) {
     return CurriculumState(
@@ -199,6 +202,9 @@ class CurriculumState extends Equatable {
       isLoadingChapters: isLoadingChapters ?? this.isLoadingChapters,
       isMutating: isMutating ?? this.isMutating,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      errorStatusCode: clearError
+          ? null
+          : (errorStatusCode ?? this.errorStatusCode),
     );
   }
 
@@ -220,5 +226,6 @@ class CurriculumState extends Equatable {
     isLoadingChapters,
     isMutating,
     errorMessage,
+    errorStatusCode,
   ];
 }

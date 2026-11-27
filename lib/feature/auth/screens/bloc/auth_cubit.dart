@@ -1,6 +1,6 @@
 // Cubit managing admin login, session restoration, and unauthorized blocking.
 // Keeps auth transitions predictable for go_router redirects and LoginScreen.
-import 'auth_cubit_imports.dart';
+import 'imports/auth_cubit_imports.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit(this._repository) : super(const AuthState());

@@ -1,29 +1,30 @@
 // Branding header displayed at the top of the admin sign-in card.
 // Renders the ChapterNo badge, workspace title, and subtitle.
-import 'login_header_imports.dart';
+import 'imports/login_header_imports.dart';
 
 class LoginHeader extends StatelessWidget {
   const LoginHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
     return Row(
       children: [
         Container(
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: AppColors.primary,
+            color: palette.primary,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: const Icon(
+          child: Icon(
             PhosphorIconsFill.graduationCap,
             size: 22,
-            color: Colors.white,
+            color: palette.onPrimary,
           ),
         ),
         const SizedBox(width: 12),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -32,15 +33,12 @@ class LoginHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: palette.textPrimary,
                 ),
               ),
               Text(
                 'Internal Curriculum & MCQ Authoring',
-                style: TextStyle(
-                  fontSize: 12.5,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 12.5, color: palette.textSecondary),
               ),
             ],
           ),

@@ -58,11 +58,17 @@ create table if not exists public.education_levels (
 );
 
 alter table public.education_levels
+  add column if not exists code text,
+  add column if not exists name_bn text,
+  add column if not exists name_en text,
   add column if not exists display_order integer not null default 0,
   add column if not exists is_active boolean not null default true,
   add column if not exists archived_at timestamptz,
   add column if not exists created_at timestamptz not null default now(),
   add column if not exists updated_at timestamptz not null default now();
+
+create unique index if not exists uq_education_levels_code
+  on public.education_levels(code);
 
 -- 3.2 boards
 create table if not exists public.boards (
@@ -80,6 +86,10 @@ create table if not exists public.boards (
 );
 
 alter table public.boards
+  add column if not exists education_level_id uuid references public.education_levels(id) on delete restrict,
+  add column if not exists code text,
+  add column if not exists name_bn text,
+  add column if not exists name_en text,
   add column if not exists display_order integer not null default 0,
   add column if not exists is_active boolean not null default true,
   add column if not exists archived_at timestamptz,
@@ -88,6 +98,8 @@ alter table public.boards
 
 create index if not exists idx_boards_education_level_id
   on public.boards(education_level_id);
+create unique index if not exists uq_boards_education_level_code
+  on public.boards(education_level_id, code);
 
 -- 3.3 subjects
 create table if not exists public.subjects (
@@ -111,8 +123,12 @@ create table if not exists public.subjects (
 );
 
 alter table public.subjects
+  add column if not exists education_level_id uuid references public.education_levels(id) on delete restrict,
+  add column if not exists code text,
   add column if not exists nctb_code text,
   add column if not exists academic_group text not null default 'common',
+  add column if not exists name_bn text,
+  add column if not exists name_en text,
   add column if not exists short_name_bn text,
   add column if not exists display_order integer not null default 0,
   add column if not exists is_active boolean not null default true,
@@ -124,6 +140,8 @@ alter table public.subjects
 
 create index if not exists idx_subjects_education_level_id
   on public.subjects(education_level_id);
+create unique index if not exists uq_subjects_education_level_code
+  on public.subjects(education_level_id, code);
 
 -- 3.4 chapters
 create table if not exists public.chapters (
@@ -146,6 +164,11 @@ create table if not exists public.chapters (
 );
 
 alter table public.chapters
+  add column if not exists subject_id uuid references public.subjects(id) on delete restrict,
+  add column if not exists chapter_number integer,
+  add column if not exists code text,
+  add column if not exists name_bn text,
+  add column if not exists name_en text,
   add column if not exists description_bn text,
   add column if not exists display_order integer not null default 0,
   add column if not exists is_active boolean not null default true,
@@ -157,6 +180,10 @@ alter table public.chapters
 
 create index if not exists idx_chapters_subject_id
   on public.chapters(subject_id);
+create unique index if not exists uq_chapters_subject_code
+  on public.chapters(subject_id, code);
+create unique index if not exists uq_chapters_subject_number
+  on public.chapters(subject_id, chapter_number);
 
 -- 3.5 topics
 create table if not exists public.topics (
@@ -177,6 +204,10 @@ create table if not exists public.topics (
 );
 
 alter table public.topics
+  add column if not exists chapter_id uuid references public.chapters(id) on delete restrict,
+  add column if not exists code text,
+  add column if not exists name_bn text,
+  add column if not exists name_en text,
   add column if not exists summary_bn text,
   add column if not exists display_order integer not null default 0,
   add column if not exists is_active boolean not null default true,
@@ -188,6 +219,8 @@ alter table public.topics
 
 create index if not exists idx_topics_chapter_id
   on public.topics(chapter_id);
+create unique index if not exists uq_topics_chapter_code
+  on public.topics(chapter_id, code);
 
 -- 4. Updated-at & Audit Triggers
 drop trigger if exists trg_education_levels_updated_at on public.education_levels;
@@ -229,6 +262,87 @@ drop trigger if exists trg_topics_audit_actor on public.topics;
 create trigger trg_topics_audit_actor
   before insert or update on public.topics
   for each row execute function public.audit_actor();
+
+-- 4b. Reconcile legacy Step 1 columns (title_bn, title_en, sort_order, etc.)
+-- Keeps Step 1 student reads working while M2 GraphQL writes name_bn/name_en/display_order.
+create or replace function public.sync_legacy_curriculum_columns()
+returns trigger
+language plpgsql
+as $$
+declare
+  v_row jsonb := to_jsonb(new);
+  v_patch jsonb := '{}'::jsonb;
+begin
+  if v_row ? 'title_bn' and coalesce(nullif(new.name_bn, ''), '') <> '' then
+    v_patch := v_patch || jsonb_build_object('title_bn', new.name_bn);
+  end if;
+  if v_row ? 'title_en' and coalesce(nullif(new.name_en, ''), '') <> '' then
+    v_patch := v_patch || jsonb_build_object('title_en', new.name_en);
+  end if;
+  if v_row ? 'title' and coalesce(nullif(new.name_en, ''), '') <> '' then
+    v_patch := v_patch || jsonb_build_object('title', new.name_en);
+  end if;
+  if v_row ? 'sort_order' and new.display_order is not null then
+    v_patch := v_patch || jsonb_build_object('sort_order', new.display_order);
+  end if;
+  if v_patch <> '{}'::jsonb then
+    new := jsonb_populate_record(new, v_patch);
+  end if;
+  return new;
+end;
+$$;
+
+do $$
+declare
+  v_tbl text;
+  v_col text;
+begin
+  foreach v_tbl in array array['education_levels', 'boards', 'subjects', 'chapters', 'topics'] loop
+    if exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = v_tbl and column_name = 'title_bn'
+    ) then
+      execute format('update public.%I set name_bn = coalesce(name_bn, title_bn) where name_bn is null', v_tbl);
+    end if;
+
+    if exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = v_tbl and column_name = 'title_en'
+    ) then
+      execute format('update public.%I set name_en = coalesce(name_en, title_en) where name_en is null', v_tbl);
+    end if;
+
+    if exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = v_tbl and column_name = 'sort_order'
+    ) then
+      execute format('update public.%I set display_order = coalesce(display_order, sort_order, 0) where display_order = 0 and sort_order is not null', v_tbl);
+    end if;
+
+    for v_col in
+      select c.column_name
+      from information_schema.columns c
+      where c.table_schema = 'public'
+        and c.table_name = v_tbl
+        and c.is_nullable = 'NO'
+        and c.column_default is null
+        and c.column_name not in (
+          'id', 'education_level_id', 'subject_id', 'chapter_id',
+          'chapter_number', 'code', 'name_bn', 'name_en',
+          'display_order', 'is_active', 'created_at', 'updated_at'
+        )
+    loop
+      execute format('alter table public.%I alter column %I drop not null', v_tbl, v_col);
+    end loop;
+
+    execute format('drop trigger if exists trg_%I_sync_legacy on public.%I', v_tbl, v_tbl);
+    execute format(
+      'create trigger trg_%I_sync_legacy before insert or update on public.%I for each row execute function public.sync_legacy_curriculum_columns()',
+      v_tbl, v_tbl
+    );
+  end loop;
+end;
+$$;
 
 -- 5. Row Level Security Policies
 alter table public.education_levels enable row level security;
@@ -401,6 +515,14 @@ create policy topics_delete_policy
   to authenticated
   using (public.has_admin_role(array['super_admin']));
 
+-- Table privileges required by pg_graphql to generate Query & Mutation fields
+-- (row-level authorization is still enforced strictly by the RLS policies above).
+grant select, insert, update, delete on table public.education_levels to authenticated;
+grant select, insert, update, delete on table public.boards to authenticated;
+grant select, insert, update, delete on table public.subjects to authenticated;
+grant select, insert, update, delete on table public.chapters to authenticated;
+grant select, insert, update, delete on table public.topics to authenticated;
+
 -- 6. Atomic Reorder RPC (exposed as pg_graphql Mutation: reorderCurriculumNodes)
 create or replace function public.reorder_curriculum_nodes(
   p_entity text,
@@ -460,3 +582,6 @@ $$;
 
 revoke all on function public.reorder_curriculum_nodes(text, uuid, uuid[]) from public;
 grant execute on function public.reorder_curriculum_nodes(text, uuid, uuid[]) to authenticated;
+
+-- 7. Enable camelCase inflection in pg_graphql and refresh GraphQL schema cache
+comment on schema public is e'@graphql({"inflect_names": true})';
