@@ -28,7 +28,7 @@ Future<void> bootstrap() async {
 
       try {
         await Supabase.initialize(
-          url: envConfig.supabaseUrl,
+          url: envConfig.supabaseProxyUrl,
           publishableKey: envConfig.supabasePublishableKey,
         );
       } catch (error) {

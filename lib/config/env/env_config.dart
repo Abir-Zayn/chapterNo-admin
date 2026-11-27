@@ -1,17 +1,21 @@
-// Compile-time Supabase configuration loaded via --dart-define-from-file=.env.
-// Enforces non-empty HTTPS URL and rejects secret or service_role keys.
+// Compile-time API configuration loaded via --dart-define-from-file=.env.
+// The URL points at the Cloudflare Worker proxy, not Supabase directly, so
+// the real Supabase URL and key never ship in the client bundle.
+// Enforces non-empty HTTP(S) URL and rejects secret or service_role keys.
 import 'imports/env_config_imports.dart';
 
 final class EnvConfig {
   const EnvConfig._({
-    required this.supabaseUrl,
+    required this.supabaseProxyUrl,
     required this.supabasePublishableKey,
   });
 
-  final String supabaseUrl;
+  final String supabaseProxyUrl;
   final String supabasePublishableKey;
 
-  static const String _envUrl = String.fromEnvironment('SUPABASE_URL');
+  static const String _envProxyUrl = String.fromEnvironment(
+    'SUPABASE_PROXY_URL',
+  );
   static const String _envPublishableKey = String.fromEnvironment(
     'SUPABASE_PUBLISHABLE_KEY',
   );
@@ -19,22 +23,22 @@ final class EnvConfig {
   /// Validates environment values injected via `--dart-define-from-file=.env`.
   factory EnvConfig.fromEnvironment() {
     return EnvConfig.fromValues(
-      supabaseUrl: _envUrl,
+      supabaseProxyUrl: _envProxyUrl,
       supabasePublishableKey: _envPublishableKey,
     );
   }
 
-  /// Validates explicit [supabaseUrl] and [supabasePublishableKey] strings.
+  /// Validates explicit [supabaseProxyUrl] and [supabasePublishableKey] strings.
   factory EnvConfig.fromValues({
-    required String supabaseUrl,
+    required String supabaseProxyUrl,
     required String supabasePublishableKey,
   }) {
-    final trimmedUrl = supabaseUrl.trim();
+    final trimmedUrl = supabaseProxyUrl.trim();
     final trimmedKey = supabasePublishableKey.trim();
 
     if (trimmedUrl.isEmpty) {
       throw const EnvConfigFailure(
-        'Missing SUPABASE_URL. Pass --dart-define-from-file=.env when running.',
+        'Missing SUPABASE_PROXY_URL. Pass --dart-define-from-file=.env when running.',
         code: 'missing_supabase_url',
       );
     }
@@ -45,7 +49,7 @@ final class EnvConfig {
         (parsed.scheme != 'https' && parsed.scheme != 'http') ||
         parsed.host.isEmpty) {
       throw const EnvConfigFailure(
-        'Invalid SUPABASE_URL. Expected a valid http/https Supabase project URL.',
+        'Invalid SUPABASE_PROXY_URL. Expected a valid http/https proxy URL.',
         code: 'invalid_supabase_url',
       );
     }
@@ -67,10 +71,11 @@ final class EnvConfig {
     }
 
     return EnvConfig._(
-      supabaseUrl: trimmedUrl,
+      supabaseProxyUrl: trimmedUrl,
       supabasePublishableKey: trimmedKey,
     );
   }
 
-  String get projectHost => Uri.parse(supabaseUrl).host;
+  /// Host shown on the settings screen; the worker proxy host, not Supabase.
+  String get apiHost => Uri.parse(supabaseProxyUrl).host;
 }

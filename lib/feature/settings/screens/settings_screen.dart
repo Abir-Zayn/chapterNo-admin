@@ -115,8 +115,8 @@ class SettingsScreen extends StatelessWidget {
                     _InfoRow(label: 'Email', value: admin?.email ?? '-'),
                     const SizedBox(height: 10),
                     _InfoRow(
-                      label: 'Supabase Host',
-                      value: envConfig.projectHost,
+                      label: 'API Host',
+                      value: envConfig.apiHost,
                     ),
                     const SizedBox(height: 18),
                     OutlinedButton.icon(

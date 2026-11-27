@@ -56,3 +56,10 @@ app.*.map.json
 graphify-out/
 image.png
 product-readme.md
+
+# Cloudflare Worker local secrets & copied build output
+cloudflare-worker/.dev.vars
+cloudflare-worker/.wrangler/
+
+# Local question source assets (not for version control)
+questions/
