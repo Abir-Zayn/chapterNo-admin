@@ -56,76 +56,86 @@ class BulkImportSourcePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: palette.surface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: palette.border),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(PhosphorIconsRegular.fileCsv, size: 18),
+              const Icon(FPhosphorIcons.fileCsv, size: 18),
               const SizedBox(width: 8),
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Import Source',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                  style: typography.body.lg.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               if (sourceName != null)
-                OutlinedButton.icon(
-                  onPressed: canImport ? onClearSource : null,
-                  icon: const Icon(PhosphorIconsRegular.trash, size: 15),
-                  label: const Text('Clear'),
+                FButton(
+                  variant: .outline,
+                  size: .sm,
+                  mainAxisSize: .min,
+                  onPress: canImport ? onClearSource : null,
+                  prefix: const Icon(FPhosphorIcons.trash, size: 15),
+                  child: const Text('Clear'),
                 ),
             ],
           ),
           const SizedBox(height: 12),
-          SegmentedButton<ImportInputMode>(
-            segments: [
-              ButtonSegment(
-                value: ImportInputMode.file,
-                icon: const Icon(PhosphorIconsRegular.uploadSimple, size: 16),
-                label: Text(ImportInputMode.file.label),
-              ),
-              ButtonSegment(
-                value: ImportInputMode.paste,
-                icon: const Icon(PhosphorIconsRegular.clipboardText, size: 16),
-                label: Text(ImportInputMode.paste.label),
-              ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final mode in ImportInputMode.values)
+                FButton(
+                  variant: inputMode == mode ? .primary : .outline,
+                  size: .sm,
+                  mainAxisSize: .min,
+                  prefix: Icon(
+                    mode == ImportInputMode.file
+                        ? FPhosphorIcons.uploadSimple
+                        : FPhosphorIcons.clipboardText,
+                    size: 16,
+                  ),
+                  onPress: canImport
+                      ? () {
+                          if (mode != inputMode) onSetInputMode(mode);
+                        }
+                      : null,
+                  child: Text(mode.label),
+                ),
             ],
-            selected: {inputMode},
-            onSelectionChanged: canImport
-                ? (values) => onSetInputMode(values.first)
-                : null,
           ),
           const SizedBox(height: 12),
           if (inputMode == ImportInputMode.file) ...[
-            Row(
+            Wrap(
+              spacing: 10,
+              runSpacing: 8,
               children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: canImport ? () => _pickFile(context) : null,
-                    icon: const Icon(
-                      PhosphorIconsRegular.filePlus,
-                      size: 16,
-                    ),
-                    label: const Text('Pick .csv / .json file'),
-                  ),
+                FButton(
+                  variant: .outline,
+                  mainAxisSize: .min,
+                  onPress: canImport ? () => _pickFile(context) : null,
+                  prefix: const Icon(FPhosphorIcons.filePlus, size: 16),
+                  child: const Text('Pick .csv / .json file'),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _copySample(context),
-                    icon: const Icon(PhosphorIconsRegular.copy, size: 16),
-                    label: const Text('Copy Sample CSV'),
-                  ),
+                FButton(
+                  variant: .outline,
+                  mainAxisSize: .min,
+                  onPress: () => _copySample(context),
+                  prefix: const Icon(FPhosphorIcons.copy, size: 16),
+                  child: const Text('Copy Sample CSV'),
                 ),
               ],
             ),
@@ -134,18 +144,17 @@ class BulkImportSourcePanel extends StatelessWidget {
               Row(
                 children: [
                   Icon(
-                    PhosphorIconsRegular.checkCircle,
+                    FPhosphorIcons.checkCircle,
                     size: 16,
-                    color: palette.success,
+                    color: colors.primary,
                   ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       'Loaded: $sourceName',
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: palette.textPrimary,
-                        fontSize: 13,
+                      style: typography.body.sm.copyWith(
+                        color: colors.foreground,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -154,31 +163,34 @@ class BulkImportSourcePanel extends StatelessWidget {
               ),
             ],
           ] else ...[
-            TextField(
+            FTextField(
               enabled: canImport,
-              maxLines: 6,
-              onChanged: onUpdateSourceText,
-              decoration: const InputDecoration(
-                hintText:
-                    'Paste CSV or JSON rows directly from Gemini Web or '
-                    'Google Sheets...',
-                counterText: '',
+              control: FTextFieldControl.managed(
+                onChange: (value) => onUpdateSourceText(value.text),
               ),
+              maxLines: 6,
+              minLines: 6,
+              hint:
+                  'Paste CSV or JSON rows directly from Gemini Web or '
+                  'Google Sheets...',
             ),
             const SizedBox(height: 10),
             Wrap(
               spacing: 10,
               runSpacing: 8,
               children: [
-                FilledButton.icon(
-                  onPressed: canImport ? onParseSourceText : null,
-                  icon: const Icon(PhosphorIconsRegular.magicWand, size: 16),
-                  label: const Text('Parse & Validate'),
+                FButton(
+                  mainAxisSize: .min,
+                  onPress: canImport ? onParseSourceText : null,
+                  prefix: const Icon(FPhosphorIcons.magicWand, size: 16),
+                  child: const Text('Parse & Validate'),
                 ),
-                OutlinedButton.icon(
-                  onPressed: () => _copySample(context),
-                  icon: const Icon(PhosphorIconsRegular.copy, size: 16),
-                  label: const Text('Copy Sample CSV'),
+                FButton(
+                  variant: .outline,
+                  mainAxisSize: .min,
+                  onPress: () => _copySample(context),
+                  prefix: const Icon(FPhosphorIcons.copy, size: 16),
+                  child: const Text('Copy Sample CSV'),
                 ),
               ],
             ),
@@ -194,42 +206,39 @@ class BulkImportSourcePanel extends StatelessWidget {
 class _SampleCsvDisclosure extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        tilePadding: EdgeInsets.zero,
-        childrenPadding: EdgeInsets.zero,
-        dense: true,
-        title: Text(
-          'View expected CSV format',
-          style: TextStyle(
-            color: palette.textSecondary,
-            fontSize: 12.5,
-            fontWeight: FontWeight.w500,
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
+    return FAccordion(
+      control: const FAccordionControl.managed(max: 1),
+      children: [
+        FAccordionItem(
+          title: Text(
+            'View expected CSV format',
+            style: typography.body.sm.copyWith(
+              color: colors.mutedForeground,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ),
-        children: [
-          Container(
+          dividerBuilder: (_, _) => const SizedBox.shrink(),
+          child: Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: palette.surfaceSubtle,
+              color: colors.secondary,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: palette.border),
+              border: Border.all(color: colors.border),
             ),
             child: SelectableText(
               sampleCsv,
-              style: TextStyle(
+              style: typography.body.xs.copyWith(
                 fontFamily: 'monospace',
-                fontSize: 11.5,
-                color: palette.textPrimary,
+                color: colors.foreground,
                 height: 1.5,
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

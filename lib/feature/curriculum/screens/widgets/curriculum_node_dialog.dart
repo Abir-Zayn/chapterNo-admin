@@ -2,6 +2,16 @@
 // Supports Bangla UTF-8 input, auto-slugified codes, and inline error display.
 import 'imports/curriculum_node_dialog_imports.dart';
 
+TextStyleDelta _banglaInputTextStyle(TextStyle bangla) {
+  return TextStyleDelta.delta(
+    fontFamily: bangla.fontFamily,
+    fontFamilyFallback: bangla.fontFamilyFallback,
+    fontSize: bangla.fontSize,
+    fontWeight: bangla.fontWeight,
+    height: bangla.height,
+  );
+}
+
 class CurriculumNodeFormValues {
   const CurriculumNodeFormValues({
     required this.code,
@@ -33,25 +43,57 @@ Future<bool> showArchiveConfirmationDialog(
   required String itemName,
   required bool isArchiving,
 }) async {
-  final result = await showDialog<bool>(
+  final result = await showFDialog<bool>(
     context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: Text(isArchiving ? 'Archive $itemName?' : 'Restore $itemName?'),
-      content: Text(
-        isArchiving
-            ? 'Archiving hides this item from new student sessions without deleting existing questions or progress.'
-            : 'Restoring makes this item visible again in active curriculum selections.',
+    builder: (dialogContext, style, animation) => FDialog(
+      style: style,
+      animation: animation,
+      builder: (context, dialogStyle) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8, bottom: 20),
+              child: DefaultTextStyle.merge(
+                style: dialogStyle.titleTextStyle,
+                child: Text(
+                  isArchiving ? 'Archive $itemName?' : 'Restore $itemName?',
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                isArchiving
+                    ? 'Archiving hides this item from new student sessions without deleting existing questions or progress.'
+                    : 'Restoring makes this item visible again in active curriculum selections.',
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FButton(
+                  variant: .outline,
+                  size: .sm,
+                  mainAxisSize: .min,
+                  onPress: () => Navigator.of(dialogContext).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                const SizedBox(width: 10),
+                FButton(
+                  size: .sm,
+                  mainAxisSize: .min,
+                  onPress: () => Navigator.of(dialogContext).pop(true),
+                  child: Text(isArchiving ? 'Archive' : 'Restore'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: Text(isArchiving ? 'Archive' : 'Restore'),
-        ),
-      ],
     ),
   );
   return result ?? false;
@@ -74,30 +116,36 @@ Future<void> showCurriculumNodeDialog(
   String? initialDescriptionBn,
   String? initialSummaryBn,
 }) {
-  return showDialog<void>(
+  return showFDialog<void>(
     context: context,
     barrierDismissible: false,
-    builder: (_) => _CurriculumNodeDialog(
-      kind: kind,
-      isEditing: isEditing,
-      onSubmit: onSubmit,
-      codePrefix: codePrefix,
-      initialCode: initialCode,
-      initialNameBn: initialNameBn,
-      initialNameEn: initialNameEn,
-      initialDisplayOrder: initialDisplayOrder,
-      initialGroup: initialGroup,
-      initialNctbCode: initialNctbCode,
-      initialShortNameBn: initialShortNameBn,
-      initialChapterNumber: initialChapterNumber,
-      initialDescriptionBn: initialDescriptionBn,
-      initialSummaryBn: initialSummaryBn,
+    builder: (context, style, animation) => FDialog(
+      style: style,
+      animation: animation,
+      builder: (context, dialogStyle) => _CurriculumNodeDialog(
+        dialogStyle: dialogStyle,
+        kind: kind,
+        isEditing: isEditing,
+        onSubmit: onSubmit,
+        codePrefix: codePrefix,
+        initialCode: initialCode,
+        initialNameBn: initialNameBn,
+        initialNameEn: initialNameEn,
+        initialDisplayOrder: initialDisplayOrder,
+        initialGroup: initialGroup,
+        initialNctbCode: initialNctbCode,
+        initialShortNameBn: initialShortNameBn,
+        initialChapterNumber: initialChapterNumber,
+        initialDescriptionBn: initialDescriptionBn,
+        initialSummaryBn: initialSummaryBn,
+      ),
     ),
   );
 }
 
 class _CurriculumNodeDialog extends StatefulWidget {
   const _CurriculumNodeDialog({
+    required this.dialogStyle,
     required this.kind,
     required this.isEditing,
     required this.onSubmit,
@@ -114,6 +162,7 @@ class _CurriculumNodeDialog extends StatefulWidget {
     this.initialSummaryBn,
   });
 
+  final FDialogStyle dialogStyle;
   final CurriculumNodeKind kind;
   final bool isEditing;
   final Future<String?> Function(CurriculumNodeFormValues values) onSubmit;
@@ -146,6 +195,7 @@ class _CurriculumNodeDialogState extends State<_CurriculumNodeDialog> {
 
   late AcademicGroup _selectedGroup;
   bool _codeManuallyEdited = false;
+  bool _isUpdatingCode = false;
   bool _isSaving = false;
   String? _inlineError;
 
@@ -191,10 +241,12 @@ class _CurriculumNodeDialogState extends State<_CurriculumNodeDialog> {
 
   void _onEnglishChanged(String value) {
     if (_codeManuallyEdited) return;
+    _isUpdatingCode = true;
     _codeController.text = CurriculumValidators.suggestCode(
       value,
       prefix: widget.codePrefix,
     );
+    _isUpdatingCode = false;
   }
 
   Future<void> _submit() async {
@@ -241,165 +293,216 @@ class _CurriculumNodeDialogState extends State<_CurriculumNodeDialog> {
         ? 'Edit ${widget.kind.label}'
         : 'Add ${widget.kind.label}';
 
-    return AlertDialog(
-      title: Text(title),
-      content: SizedBox(
-        width: 480,
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (_inlineError != null) ...[
-                  AppErrorBanner(
-                    message: _inlineError!,
-                    onDismiss: () => setState(() => _inlineError = null),
-                  ),
-                  const SizedBox(height: 14),
-                ],
-                TextFormField(
-                  controller: _nameBnController,
-                  enabled: !_isSaving,
-                  style: AppTypography.bangla(fontSize: 15),
-                  decoration: const InputDecoration(
-                    labelText: 'Bangla Name (বাংলা নাম) *',
-                    hintText: 'যেমন: পদার্থবিজ্ঞান',
-                  ),
-                  validator: CurriculumValidators.requiredBangla,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _nameEnController,
-                  enabled: !_isSaving,
-                  onChanged: _onEnglishChanged,
-                  decoration: const InputDecoration(
-                    labelText: 'English Name *',
-                    hintText: 'e.g., Physics',
-                  ),
-                  validator: CurriculumValidators.requiredEnglish,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _codeController,
-                  enabled: !_isSaving,
-                  onChanged: (_) => _codeManuallyEdited = true,
-                  decoration: const InputDecoration(
-                    labelText: 'Code *',
-                    hintText: 'e.g., ssc_phy_ch01',
-                  ),
-                  validator: CurriculumValidators.code,
-                ),
-                const SizedBox(height: 12),
-                if (widget.kind == CurriculumNodeKind.subject) ...[
-                  DropdownButtonFormField<AcademicGroup>(
-                    initialValue: _selectedGroup,
-                    decoration: const InputDecoration(
-                      labelText: 'Academic Group',
-                    ),
-                    items: AcademicGroup.values
-                        .map(
-                          (group) => DropdownMenuItem(
-                            value: group,
-                            child: Text('${group.labelBn} (${group.labelEn})'),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 8, right: 8, bottom: 20),
+            child: DefaultTextStyle.merge(
+              style: widget.dialogStyle.titleTextStyle,
+              child: Text(title),
+            ),
+          ),
+          Flexible(
+            child: SingleChildScrollView(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_inlineError != null) ...[
+                      AppErrorBanner(
+                        message: _inlineError!,
+                        onDismiss: () => setState(() => _inlineError = null),
+                      ),
+                      const SizedBox(height: 14),
+                    ],
+                    FTextFormField(
+                      control: FTextFieldControl.managed(
+                        controller: _nameBnController,
+                      ),
+                      enabled: !_isSaving,
+                      style: .delta(
+                        contentTextStyle: .delta([
+                          .all(
+                            _banglaInputTextStyle(
+                              AppTypography.bangla(fontSize: 15),
+                            ),
                           ),
-                        )
-                        .toList(),
-                    onChanged: _isSaving
-                        ? null
-                        : (group) {
+                        ]),
+                      ),
+                      label: const Text('Bangla Name (বাংলা নাম) *'),
+                      hint: 'যেমন: পদার্থবিজ্ঞান',
+                      validator: CurriculumValidators.requiredBangla,
+                    ),
+                    const SizedBox(height: 12),
+                    FTextFormField(
+                      control: FTextFieldControl.managed(
+                        controller: _nameEnController,
+                        onChange: (value) => _onEnglishChanged(value.text),
+                      ),
+                      enabled: !_isSaving,
+                      label: const Text('English Name *'),
+                      hint: 'e.g., Physics',
+                      validator: CurriculumValidators.requiredEnglish,
+                    ),
+                    const SizedBox(height: 12),
+                    FTextFormField(
+                      control: FTextFieldControl.managed(
+                        controller: _codeController,
+                        onChange: (_) {
+                          if (!_isUpdatingCode) _codeManuallyEdited = true;
+                        },
+                      ),
+                      enabled: !_isSaving,
+                      label: const Text('Code *'),
+                      hint: 'e.g., ssc_phy_ch01',
+                      validator: CurriculumValidators.code,
+                    ),
+                    const SizedBox(height: 12),
+                    if (widget.kind == CurriculumNodeKind.subject) ...[
+                      FSelect<AcademicGroup>.rich(
+                        control: FSelectControl<AcademicGroup>.managed(
+                          initial: _selectedGroup,
+                          onChange: (group) {
                             if (group != null) {
                               setState(() => _selectedGroup = group);
                             }
                           },
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _nctbCodeController,
-                          enabled: !_isSaving,
-                          decoration: const InputDecoration(
-                            labelText: 'NCTB Code',
-                            hintText: 'e.g., 136',
-                          ),
                         ),
+                        enabled: !_isSaving,
+                        label: const Text('Academic Group'),
+                        format: (group) =>
+                            '${group.labelBn} (${group.labelEn})',
+                        children: [
+                          for (final group in AcademicGroup.values)
+                            FSelectItem<AcademicGroup>(
+                              title: Text(
+                                '${group.labelBn} (${group.labelEn})',
+                              ),
+                              value: group,
+                            ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _shortNameBnController,
-                          enabled: !_isSaving,
-                          style: AppTypography.bangla(fontSize: 14),
-                          decoration: const InputDecoration(
-                            labelText: 'Short Name (বাংলা)',
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: FTextFormField(
+                              control: FTextFieldControl.managed(
+                                controller: _nctbCodeController,
+                              ),
+                              enabled: !_isSaving,
+                              label: const Text('NCTB Code'),
+                              hint: 'e.g., 136',
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: FTextFormField(
+                              control: FTextFieldControl.managed(
+                                controller: _shortNameBnController,
+                              ),
+                              enabled: !_isSaving,
+                              style: .delta(
+                                contentTextStyle: .delta([
+                                  .all(
+                                    _banglaInputTextStyle(
+                                      AppTypography.bangla(fontSize: 14),
+                                    ),
+                                  ),
+                                ]),
+                              ),
+                              label: const Text('Short Name (বাংলা)'),
+                            ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 12),
                     ],
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                if (widget.kind == CurriculumNodeKind.chapter) ...[
-                  TextFormField(
-                    controller: _chapterNumberController,
-                    enabled: !_isSaving,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Chapter Number *',
+                    if (widget.kind == CurriculumNodeKind.chapter) ...[
+                      FTextFormField(
+                        control: FTextFieldControl.managed(
+                          controller: _chapterNumberController,
+                        ),
+                        enabled: !_isSaving,
+                        keyboardType: TextInputType.number,
+                        label: const Text('Chapter Number *'),
+                        validator: CurriculumValidators.positiveInt,
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    if (widget.kind == CurriculumNodeKind.chapter ||
+                        widget.kind == CurriculumNodeKind.topic) ...[
+                      FTextFormField(
+                        control: FTextFieldControl.managed(
+                          controller: _extraBnController,
+                        ),
+                        enabled: !_isSaving,
+                        maxLines: 2,
+                        style: .delta(
+                          contentTextStyle: .delta([
+                            .all(
+                              _banglaInputTextStyle(
+                                AppTypography.bangla(fontSize: 14),
+                              ),
+                            ),
+                          ]),
+                        ),
+                        label: Text(
+                          widget.kind == CurriculumNodeKind.chapter
+                              ? 'Description (বাংলা)'
+                              : 'Summary (বাংলা)',
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    FTextFormField(
+                      control: FTextFieldControl.managed(
+                        controller: _orderController,
+                      ),
+                      enabled: !_isSaving,
+                      keyboardType: TextInputType.number,
+                      label: const Text('Display Order'),
+                      validator: CurriculumValidators.nonNegativeInt,
                     ),
-                    validator: CurriculumValidators.positiveInt,
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                if (widget.kind == CurriculumNodeKind.chapter ||
-                    widget.kind == CurriculumNodeKind.topic) ...[
-                  TextFormField(
-                    controller: _extraBnController,
-                    enabled: !_isSaving,
-                    maxLines: 2,
-                    style: AppTypography.bangla(fontSize: 14),
-                    decoration: InputDecoration(
-                      labelText: widget.kind == CurriculumNodeKind.chapter
-                          ? 'Description (বাংলা)'
-                          : 'Summary (বাংলা)',
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                TextFormField(
-                  controller: _orderController,
-                  enabled: !_isSaving,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Display Order'),
-                  validator: CurriculumValidators.nonNegativeInt,
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              FButton(
+                variant: .outline,
+                size: .sm,
+                mainAxisSize: .min,
+                onPress: _isSaving ? null : () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+              const SizedBox(width: 10),
+              FButton(
+                size: .sm,
+                mainAxisSize: .min,
+                onPress: _isSaving ? null : _submit,
+                child: _isSaving
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: FCircularProgress(size: .xs),
+                      )
+                    : Text(widget.isEditing ? 'Save Changes' : 'Create'),
+              ),
+            ],
+          ),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: _isSaving ? null : _submit,
-          child: _isSaving
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-              : Text(widget.isEditing ? 'Save Changes' : 'Create'),
-        ),
-      ],
     );
   }
 }

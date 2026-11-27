@@ -11,6 +11,7 @@ export 'package:chapterno_admin/core/supabase/supabase_service.dart';
 export 'package:chapterno_admin/feature/auth/data/supabase_auth_repository.dart';
 export 'package:chapterno_admin/feature/bulk_import/data/repositories/supabase_bulk_import_repository.dart';
 export 'package:chapterno_admin/feature/curriculum/data/repositories/graphql_curriculum_repository.dart';
+export 'package:chapterno_admin/feature/question_bank/data/repositories/supabase_question_bank_repository.dart';
 export 'package:chapterno_admin/shared/widgets/state_views.dart';
 export 'package:chapterno_admin/theme/theme.dart';
 export 'package:flutter_bloc/flutter_bloc.dart';

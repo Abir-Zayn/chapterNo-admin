@@ -7,20 +7,21 @@ class LoginHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
+    final text = context.theme.typography.body;
     return Row(
       children: [
         Container(
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: palette.primary,
+            color: colors.primary,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(
-            PhosphorIconsFill.graduationCap,
+            FPhosphorIcons.graduationCap,
             size: 22,
-            color: palette.onPrimary,
+            color: colors.primaryForeground,
           ),
         ),
         const SizedBox(width: 12),
@@ -30,15 +31,14 @@ class LoginHeader extends StatelessWidget {
             children: [
               Text(
                 'ChapterNo Admin',
-                style: TextStyle(
-                  fontSize: 18,
+                style: text.xl.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: palette.textPrimary,
+                  color: colors.foreground,
                 ),
               ),
               Text(
                 'Internal Curriculum & MCQ Authoring',
-                style: TextStyle(fontSize: 12.5, color: palette.textSecondary),
+                style: text.sm.copyWith(color: colors.mutedForeground),
               ),
             ],
           ),

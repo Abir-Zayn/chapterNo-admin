@@ -1,6 +1,6 @@
 // Import barrel for admin_shell.dart.
 // Centralizes Flutter, routing, auth entity, theme, nav items, and icons.
-export 'package:chapterno_admin/config/theme/app_theme.dart';
+export 'package:forui/forui.dart';
 export 'package:chapterno_admin/config/theme/theme_cubit.dart';
 export 'package:chapterno_admin/feature/auth/domain/admin_user.dart';
 export 'package:chapterno_admin/feature/curriculum/screens/bloc/curriculum_cubit.dart';
@@ -10,4 +10,4 @@ export 'package:chapterno_admin/shared/widgets/status_badges.dart';
 export 'package:flutter_bloc/flutter_bloc.dart';
 export 'package:go_router/go_router.dart';
 export 'package:material_ui/material_ui.dart';
-export 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+export 'package:forui_phosphor/forui_phosphor.dart';

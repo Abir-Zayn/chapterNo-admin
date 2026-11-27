@@ -44,7 +44,7 @@ class AppRouter {
                 title: 'Bangla MCQ Studio',
                 milestoneCode: 'Milestone 3',
                 description: 'Author Simple, Multiple-Completion (i, ii, iii), and Stimulus MCQs in UTF-8 Bangla with a live 360dp student preview.',
-                icon: PhosphorIconsRegular.pencilSimpleLine,
+                icon: FPhosphorIcons.pencilSimpleLine,
               ),
             ),
             GoRoute(
@@ -53,12 +53,7 @@ class AppRouter {
             ),
             GoRoute(
               path: '/question-bank',
-              builder: (_, _) => const MilestonePlaceholderScreen(
-                title: 'Question Bank Browser',
-                milestoneCode: 'Milestone 5',
-                description: 'Paginated search and multi-axis filtering across Subject, Chapter, Topic, Board, Year, Source, Difficulty, and Rights Status.',
-                icon: PhosphorIconsRegular.database,
-              ),
+              builder: (_, _) => const QuestionBankScreen(),
             ),
             GoRoute(
               path: '/settings',

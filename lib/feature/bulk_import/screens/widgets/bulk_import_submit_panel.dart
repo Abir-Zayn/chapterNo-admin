@@ -27,13 +27,14 @@ class BulkImportSubmitPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: palette.surface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: palette.border),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -43,51 +44,39 @@ class BulkImportSubmitPanel extends StatelessWidget {
             runSpacing: 10,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              FilledButton.icon(
-                onPressed: (canImport && validRowCount > 0 && !isSubmitting)
+              FButton(
+                mainAxisSize: .min,
+                onPress: (canImport && validRowCount > 0 && !isSubmitting)
                     ? onSubmit
                     : null,
-                icon: const Icon(PhosphorIconsRegular.uploadSimple),
-                label: Text('Import $validRowCount valid rows'),
+                prefix: const Icon(FPhosphorIcons.uploadSimple),
+                child: Text('Import $validRowCount valid rows'),
               ),
               if (isSubmitting)
                 Text(
                   submitChunksTotal > 1
                       ? 'Uploading chunk $submitChunksDone / $submitChunksTotal…'
                       : 'Uploading…',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: palette.textSecondary,
+                  style: typography.body.sm.copyWith(
+                    color: colors.mutedForeground,
                   ),
                 ),
-              if (isSubmitting)
-                const Icon(
-                  PhosphorIconsRegular.circleNotch,
-                  size: 16,
-                ),
+              if (isSubmitting) const FCircularProgress(size: .xs),
             ],
           ),
           if (isSubmitting) ...[
             const SizedBox(height: 12),
-            LinearProgressIndicator(
-              value: submitChunksTotal > 0
-                  ? submitChunksDone / submitChunksTotal
-                  : null,
-              minHeight: 4,
-              borderRadius: BorderRadius.circular(2),
-            ),
+            if (submitChunksTotal > 0)
+              FDeterminateProgress(value: submitChunksDone / submitChunksTotal)
+            else
+              const FProgress(),
           ],
           if (submitPhase == BulkImportSubmitPhase.success &&
               summary != null) ...[
             const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: palette.successTint,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: palette.successBorder),
-              ),
-              child: Wrap(
+            FAlert(
+              icon: const Icon(FPhosphorIcons.checkCircle),
+              title: Wrap(
                 spacing: 10,
                 runSpacing: 8,
                 crossAxisAlignment: WrapCrossAlignment.center,
@@ -95,10 +84,9 @@ class BulkImportSubmitPanel extends StatelessWidget {
                   StatusBadge.active('Imported'),
                   Text(
                     'Inserted ${summary!.inserted} · Updated ${summary!.updated} · Total ${summary!.total}',
-                    style: TextStyle(
-                      fontSize: 13,
+                    style: typography.body.sm.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: palette.success,
+                      color: colors.primary,
                     ),
                   ),
                 ],

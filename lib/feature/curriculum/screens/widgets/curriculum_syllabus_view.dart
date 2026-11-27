@@ -1,5 +1,5 @@
 // Responsive 3-column master-detail syllabus view (Subjects, Chapters, Topics).
-// Uses Row on desktop (>=1000dp) and SegmentedButton + IndexedStack on mobile.
+// Uses Row on desktop (>=1000dp) and FButtons + IndexedStack on mobile.
 import 'imports/curriculum_syllabus_view_imports.dart';
 
 class CurriculumSyllabusView extends StatefulWidget {
@@ -115,16 +115,32 @@ class _CurriculumSyllabusViewState extends State<CurriculumSyllabusView> {
 
     return Column(
       children: [
-        SegmentedButton<int>(
-          segments: const [
-            ButtonSegment(value: 0, label: Text('Subjects')),
-            ButtonSegment(value: 1, label: Text('Chapters')),
-            ButtonSegment(value: 2, label: Text('Topics')),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            FButton(
+              variant: _mobilePaneIndex == 0 ? .primary : .outline,
+              size: .sm,
+              mainAxisSize: .min,
+              onPress: () => setState(() => _mobilePaneIndex = 0),
+              child: const Text('Subjects'),
+            ),
+            FButton(
+              variant: _mobilePaneIndex == 1 ? .primary : .outline,
+              size: .sm,
+              mainAxisSize: .min,
+              onPress: () => setState(() => _mobilePaneIndex = 1),
+              child: const Text('Chapters'),
+            ),
+            FButton(
+              variant: _mobilePaneIndex == 2 ? .primary : .outline,
+              size: .sm,
+              mainAxisSize: .min,
+              onPress: () => setState(() => _mobilePaneIndex = 2),
+              child: const Text('Topics'),
+            ),
           ],
-          selected: {_mobilePaneIndex},
-          onSelectionChanged: (values) {
-            setState(() => _mobilePaneIndex = values.first);
-          },
         ),
         const SizedBox(height: 12),
         Expanded(

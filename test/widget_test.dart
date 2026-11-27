@@ -10,6 +10,7 @@ import 'package:chapterno_admin/feature/curriculum/domain/entities/curriculum_ro
 import 'package:chapterno_admin/feature/curriculum/domain/repositories/curriculum_repository.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forui/forui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -70,10 +71,15 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(
-      find.byType(TextFormField).at(0),
+      find.byType(FTextFormField).at(0),
       'student@chapterno.com',
     );
-    await tester.enterText(find.byType(TextFormField).at(1), 'password123');
+    await tester.enterText(
+      find.byWidgetPredicate(
+        (widget) => widget.runtimeType.toString() == 'PasswordFormField',
+      ),
+      'password123',
+    );
     await tester.tap(find.text('Sign In to Admin Workspace'));
     await tester.pumpAndSettle();
 

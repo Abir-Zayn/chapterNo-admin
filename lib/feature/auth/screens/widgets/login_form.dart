@@ -13,7 +13,6 @@ class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -54,73 +53,51 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                   const SizedBox(height: 18),
                 ],
-                TextFormField(
-                  controller: _emailController,
+                FTextFormField(
+                  control: .managed(controller: _emailController),
                   enabled: !state.isSubmitting,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   autofillHints: const [AutofillHints.email],
-                  decoration: const InputDecoration(
-                    labelText: 'Admin Email',
-                    hintText: 'editor@chapterno.com',
-                    prefixIcon: Icon(
-                      PhosphorIconsRegular.envelopeSimple,
-                      size: 18,
-                    ),
-                  ),
+                  label: const Text('Admin Email'),
+                  hint: 'editor@chapterno.com',
                   validator: LoginValidators.email,
                 ),
                 const SizedBox(height: 14),
-                TextFormField(
-                  controller: _passwordController,
+                FTextFormField.password(
+                  control: .managed(controller: _passwordController),
                   enabled: !state.isSubmitting,
-                  obscureText: _obscurePassword,
                   textInputAction: TextInputAction.done,
                   autofillHints: const [AutofillHints.password],
-                  onFieldSubmitted: (_) => _submit(),
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: const Icon(
-                      PhosphorIconsRegular.lockSimple,
-                      size: 18,
-                    ),
-                    suffixIcon: IconButton(
-                      tooltip: _obscurePassword
-                          ? 'Show password'
-                          : 'Hide password',
-                      onPressed: () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
-                      icon: Icon(
-                        _obscurePassword
-                            ? PhosphorIconsRegular.eye
-                            : PhosphorIconsRegular.eyeSlash,
-                        size: 18,
-                      ),
-                    ),
-                  ),
+                  label: const Text('Password'),
+                  onSubmit: (_) => _submit(),
                   validator: LoginValidators.password,
                 ),
                 const SizedBox(height: 20),
-                FilledButton(
-                  onPressed: state.isSubmitting ? null : _submit,
+                FButton(
+                  onPress: state.isSubmitting ? null : _submit,
                   child: state.isSubmitting
                       ? SizedBox(
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: AppPalette.of(context).onPrimary,
+                            color: context.theme.colors.primaryForeground,
                           ),
                         )
-                      : const Text('Sign In to Admin Workspace'),
+                      : const Flexible(
+                          child: Text(
+                            'Sign In to Admin Workspace',
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                 ),
                 const SizedBox(height: 14),
                 Text(
                   'Student accounts are blocked automatically. Access is verified via server-side Postgres RLS.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppPalette.of(context).textSecondary,
+                  style: context.theme.typography.body.sm.copyWith(
+                    color: context.theme.colors.mutedForeground,
                   ),
                 ),
               ],

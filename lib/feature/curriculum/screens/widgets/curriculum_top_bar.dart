@@ -16,7 +16,8 @@ class CurriculumTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
     final cubit = context.read<CurriculumCubit>();
     final isWide = MediaQuery.sizeOf(context).width >= 820;
 
@@ -27,11 +28,16 @@ class CurriculumTopBar extends StatelessWidget {
     final activeSubjects = state.subjects.where((s) => !s.isArchived).length;
     final activeBoards = state.boards.where((b) => !b.isArchived).length;
 
+    String levelLabel(String id) {
+      final level = state.levels.firstWhere((level) => level.id == id);
+      return '${level.nameEn} (${level.nameBn})';
+    }
+
     return Container(
       decoration: BoxDecoration(
-        color: palette.surface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: palette.border),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -41,17 +47,16 @@ class CurriculumTopBar extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Expanded(
-                      child: Text(
-                        'Curriculum Catalogue',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: -0.3,
-                          color: palette.textPrimary,
-                        ),
+                    Text(
+                      'Curriculum Catalogue',
+                      style: typography.body.xl2.copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
                       ),
                     ),
                     if (isReviewer) StatusBadge.neutral('Read-only (Reviewer)'),
@@ -60,7 +65,9 @@ class CurriculumTopBar extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Controlled source of truth for NCTB syllabus hierarchy: Level → Board → Subject → Chapter → Topic.',
-                  style: TextStyle(fontSize: 13, color: palette.textSecondary),
+                  style: typography.body.sm.copyWith(
+                    color: colors.mutedForeground,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 if (isWide)
@@ -72,17 +79,17 @@ class CurriculumTopBar extends StatelessWidget {
                           heading: 'Syllabus hierarchy',
                           rows: [
                             _StatRow(
-                              icon: PhosphorIconsRegular.books,
+                              icon: FPhosphorIcons.books,
                               label: 'Subjects in selected level',
                               count: activeSubjects,
                             ),
                             _StatRow(
-                              icon: PhosphorIconsRegular.listNumbers,
+                              icon: FPhosphorIcons.listNumbers,
                               label: 'Chapters in selected subject',
                               count: state.chapters.length,
                             ),
                             _StatRow(
-                              icon: PhosphorIconsRegular.tag,
+                              icon: FPhosphorIcons.tag,
                               label: 'Topics in selected subject',
                               count: totalTopics,
                             ),
@@ -95,12 +102,12 @@ class CurriculumTopBar extends StatelessWidget {
                           heading: 'Coverage & boards',
                           rows: [
                             _StatRow(
-                              icon: PhosphorIconsRegular.graduationCap,
+                              icon: FPhosphorIcons.graduationCap,
                               label: 'Education levels',
                               count: state.levels.length,
                             ),
                             _StatRow(
-                              icon: PhosphorIconsRegular.buildings,
+                              icon: FPhosphorIcons.buildings,
                               label: 'Active education boards',
                               count: activeBoards,
                             ),
@@ -123,66 +130,73 @@ class CurriculumTopBar extends StatelessWidget {
                 if (state.levels.isNotEmpty)
                   SizedBox(
                     width: 215,
-                    child: DropdownButtonFormField<String>(
-                      initialValue: state.selectedLevelId,
-                      isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Education Level',
+                    child: FSelect<String>.rich(
+                      control: FSelectControl<String>.lifted(
+                        value: state.selectedLevelId,
+                        onChange: (value) {
+                          if (value != null) cubit.selectLevel(value);
+                        },
                       ),
-                      items: state.levels
-                          .map(
-                            (level) => DropdownMenuItem(
-                              value: level.id,
-                              child: Text(
-                                '${level.nameEn} (${level.nameBn})',
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                      label: const Text('Education Level'),
+                      format: levelLabel,
+                      children: [
+                        for (final level in state.levels)
+                          FSelectItem<String>(
+                            title: Text(
+                              '${level.nameEn} (${level.nameBn})',
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          )
-                          .toList(),
-                      onChanged: (value) {
-                        if (value != null) cubit.selectLevel(value);
-                      },
+                            value: level.id,
+                          ),
+                      ],
                     ),
                   ),
                 SizedBox(
                   width: 240,
-                  child: TextField(
-                    controller: searchController,
-                    onChanged: cubit.setSearchQuery,
-                    decoration: const InputDecoration(
-                      hintText: 'Search Bangla, English, or code...',
-                      prefixIcon: Icon(
-                        PhosphorIconsRegular.magnifyingGlass,
-                        size: 16,
-                      ),
+                  child: FTextField(
+                    control: FTextFieldControl.managed(
+                      controller: searchController,
+                      onChange: (value) => cubit.setSearchQuery(value.text),
                     ),
+                    hint: 'Search Bangla, English, or code...',
+                    prefixBuilder: (context, style, variants) =>
+                        FTextField.prefixIconBuilder(
+                          context,
+                          style,
+                          variants,
+                          const Icon(FPhosphorIcons.magnifyingGlass, size: 16),
+                        ),
                   ),
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Switch(
-                      value: state.showArchived,
-                      onChanged: cubit.toggleShowArchived,
-                    ),
-                    const SizedBox(width: 4),
-                    const Text('Show Archived', style: TextStyle(fontSize: 13)),
-                  ],
+                FSwitch(
+                  value: state.showArchived,
+                  onChange: cubit.toggleShowArchived,
+                  label: Text('Show Archived', style: typography.body.sm),
                 ),
-                SegmentedButton<CurriculumTab>(
-                  segments: const [
-                    ButtonSegment(
-                      value: CurriculumTab.syllabus,
-                      label: Text('Subjects & Syllabus'),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    FButton(
+                      variant: state.activeTab == CurriculumTab.syllabus
+                          ? .primary
+                          : .outline,
+                      size: .sm,
+                      mainAxisSize: .min,
+                      onPress: () => cubit.setTab(CurriculumTab.syllabus),
+                      child: const Text('Subjects & Syllabus'),
                     ),
-                    ButtonSegment(
-                      value: CurriculumTab.boardsAndLevels,
-                      label: Text('Boards & Levels'),
+                    FButton(
+                      variant: state.activeTab == CurriculumTab.boardsAndLevels
+                          ? .primary
+                          : .outline,
+                      size: .sm,
+                      mainAxisSize: .min,
+                      onPress: () =>
+                          cubit.setTab(CurriculumTab.boardsAndLevels),
+                      child: const Text('Boards & Levels'),
                     ),
                   ],
-                  selected: {state.activeTab},
-                  onSelectionChanged: (values) => cubit.setTab(values.first),
                 ),
               ],
             ),
@@ -201,17 +215,13 @@ class _OverviewColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final typography = context.theme.typography;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           heading,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: palette.textPrimary,
-          ),
+          style: typography.body.sm.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 10),
         for (var i = 0; i < rows.length; i++) ...[
@@ -236,37 +246,36 @@ class _StatRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
     return Row(
       children: [
         Container(
           width: 28,
           height: 28,
           decoration: BoxDecoration(
-            color: palette.primaryTint,
+            color: colors.secondary,
             shape: BoxShape.circle,
-            border: Border.all(color: palette.border),
+            border: Border.all(color: colors.border),
           ),
-          child: Icon(icon, size: 14, color: palette.textPrimary),
+          child: Icon(icon, size: 14, color: colors.foreground),
         ),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             label,
-            style: TextStyle(
-              fontSize: 13.5,
-              color: palette.textPrimary,
+            style: typography.body.sm.copyWith(
+              color: colors.foreground,
               decoration: TextDecoration.underline,
-              decorationColor: palette.border,
+              decorationColor: colors.border,
             ),
           ),
         ),
         Text(
           '$count',
-          style: TextStyle(
-            fontSize: 13.5,
+          style: typography.body.sm.copyWith(
             fontWeight: FontWeight.w600,
-            color: palette.textPrimary,
+            color: colors.foreground,
           ),
         ),
       ],

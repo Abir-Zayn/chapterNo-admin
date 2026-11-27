@@ -1,5 +1,6 @@
 // Solid 1dp-bordered status badges for editorial workflow and admin roles.
-// Avoids translucent glass effects while adapting cleanly to light/dark themes.
+// Colors resolve from the Forui theme; success/warning pairs adapt to brightness
+// so badge text stays readable in both light and dark mode.
 import 'imports/status_badges_imports.dart';
 
 class StatusBadge extends StatelessWidget {
@@ -10,22 +11,21 @@ class StatusBadge extends StatelessWidget {
     this.foregroundColor,
     this.borderColor,
     this.isActive = false,
-  });
+  }) : _tone = _StatusTone.custom;
+
+  const StatusBadge._({required this.label, required this._tone})
+    : backgroundColor = null,
+      foregroundColor = null,
+      borderColor = null,
+      isActive = false;
 
   factory StatusBadge.rights(String rightsStatus) {
     if (rightsStatus == 'cleared') {
-      return const StatusBadge(
-        label: 'Cleared',
-        backgroundColor: AppColors.successTint,
-        foregroundColor: AppColors.success,
-        borderColor: Color(0xFFBBF7D0),
-      );
+      return const StatusBadge._(label: 'Cleared', tone: _StatusTone.success);
     }
-    return const StatusBadge(
+    return const StatusBadge._(
       label: 'Internal Draft',
-      backgroundColor: AppColors.warningTint,
-      foregroundColor: AppColors.warning,
-      borderColor: Color(0xFFFDE68A),
+      tone: _StatusTone.warning,
     );
   }
 
@@ -39,16 +39,31 @@ class StatusBadge extends StatelessWidget {
   final Color? foregroundColor;
   final Color? borderColor;
   final bool isActive;
+  final _StatusTone _tone;
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
-    final bg =
-        backgroundColor ?? (isActive ? palette.primary : palette.surfaceSubtle);
-    final fg =
+    final colors = context.theme.colors;
+    final dark = colors.brightness == Brightness.dark;
+
+    final (bg, fg, border) = switch (_tone) {
+      _StatusTone.success => (
+        dark ? const Color(0xFF0F291A) : const Color(0xFFF0FDF4),
+        dark ? const Color(0xFF4ADE80) : const Color(0xFF16A34A),
+        dark ? const Color(0xFF166534) : const Color(0xFFBBF7D0),
+      ),
+      _StatusTone.warning => (
+        dark ? const Color(0xFF2A1F0A) : const Color(0xFFFFFBEB),
+        dark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
+        dark ? const Color(0xFF92400E) : const Color(0xFFFDE68A),
+      ),
+      _StatusTone.custom => (
+        backgroundColor ?? (isActive ? colors.primary : colors.secondary),
         foregroundColor ??
-        (isActive ? palette.onPrimary : palette.textSecondary);
-    final border = borderColor ?? (isActive ? palette.primary : palette.border);
+            (isActive ? colors.primaryForeground : colors.mutedForeground),
+        borderColor ?? (isActive ? colors.primary : colors.border),
+      ),
+    };
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -68,3 +83,5 @@ class StatusBadge extends StatelessWidget {
     );
   }
 }
+
+enum _StatusTone { custom, success, warning }

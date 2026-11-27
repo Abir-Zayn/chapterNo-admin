@@ -1,6 +1,6 @@
 // Widget tests for CurriculumScreen role gating and Bangla form submission.
 // Verifies super_admin, editor, and reviewer UI controls without network calls.
-import 'package:chapterno_admin/config/theme/app_theme.dart';
+import 'package:chapterno_admin/theme/theme.dart';
 import 'package:chapterno_admin/core/error/app_failure.dart';
 import 'package:chapterno_admin/feature/auth/domain/admin_user.dart';
 import 'package:chapterno_admin/feature/auth/domain/auth_repository.dart';
@@ -17,6 +17,7 @@ import 'package:chapterno_admin/feature/curriculum/screens/curriculum_screen.dar
 import 'package:chapterno_admin/feature/curriculum/types/academic_group.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forui/forui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
@@ -105,7 +106,15 @@ void main() {
           BlocProvider.value(value: curriculumCubit),
         ],
         child: MaterialApp(
-          theme: AppTheme.light(),
+          supportedLocales: FLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            ...FLocalizations.localizationsDelegates,
+          ],
+          theme: lightTheme.toApproximateMaterialTheme(),
+          builder: (context, child) => FTheme(
+            data: lightTheme,
+            child: FToaster(child: FTooltipGroup(child: child!)),
+          ),
           home: const Scaffold(body: CurriculumScreen()),
         ),
       ),
@@ -160,11 +169,11 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(
-      find.widgetWithText(TextFormField, 'Bangla Name (বাংলা নাম) *'),
+      find.widgetWithText(FTextFormField, 'Bangla Name (বাংলা নাম) *'),
       'ভৌত রাশি ও পরিমাপ',
     );
     await tester.enterText(
-      find.widgetWithText(TextFormField, 'English Name *'),
+      find.widgetWithText(FTextFormField, 'English Name *'),
       'Physical Quantities',
     );
     await tester.tap(find.text('Create'));
@@ -199,28 +208,29 @@ void main() {
     expect(find.text('Add Board'), findsOneWidget);
   });
 
-  testWidgets('selected group chip uses white text on black primary fill', (
+  testWidgets('selected group button uses primary foreground text', (
     tester,
   ) async {
     await pumpScreen(tester, AdminRole.editor);
+    final colors = lightTheme.colors;
 
-    final allChipText = tester.widget<Text>(
-      find.descendant(of: find.byType(ChoiceChip), matching: find.text('সকল')),
+    final allButtonText = tester.widget<Text>(
+      find.descendant(of: find.byType(FButton), matching: find.text('সকল')),
     );
-    expect(allChipText.style?.color, Colors.white);
+    expect(allButtonText.style?.color, colors.primaryForeground);
 
     final scienceFinder = find.descendant(
-      of: find.byType(ChoiceChip),
+      of: find.byType(FButton),
       matching: find.text('বিজ্ঞান'),
     );
-    final scienceChipText = tester.widget<Text>(scienceFinder);
-    expect(scienceChipText.style?.color, AppColors.textPrimary);
+    final scienceButtonText = tester.widget<Text>(scienceFinder);
+    expect(scienceButtonText.style?.color, colors.foreground);
 
     await tester.tap(scienceFinder);
     await tester.pumpAndSettle();
 
     final selectedScienceText = tester.widget<Text>(scienceFinder);
-    expect(selectedScienceText.style?.color, Colors.white);
+    expect(selectedScienceText.style?.color, colors.primaryForeground);
   });
 
   testWidgets('renders status-based error scene and snackbar on 403 failure', (

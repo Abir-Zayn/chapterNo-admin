@@ -1,4 +1,4 @@
-// Subjects master column with Academic Group filter chips and CRUD actions.
+// Subjects master column with Academic Group filter buttons and CRUD actions.
 // Renders Bangla titles in Hind Siliguri alongside NCTB and group badges.
 import 'imports/subject_list_pane_imports.dart';
 
@@ -30,12 +30,13 @@ class SubjectListPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
     return Container(
       decoration: BoxDecoration(
-        color: palette.surface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: palette.border),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -44,17 +45,22 @@ class SubjectListPane extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 12, 12, 10),
             child: Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Subjects',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                    style: typography.body.md.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
                 if (canEdit)
-                  FilledButton.tonalIcon(
-                    onPressed: onAddSubject,
-                    icon: const Icon(PhosphorIconsRegular.plus, size: 15),
-                    label: const Text('Add Subject'),
+                  FButton(
+                    variant: .outline,
+                    size: .sm,
+                    mainAxisSize: .min,
+                    onPress: onAddSubject,
+                    prefix: const Icon(FPhosphorIcons.plus, size: 15),
+                    child: const Text('Add Subject'),
                   ),
               ],
             ),
@@ -64,9 +70,12 @@ class SubjectListPane extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
             child: Row(
               children: [
-                ChoiceChip(
-                  showCheckmark: false,
-                  label: Text(
+                FButton(
+                  variant: selectedGroup == null ? .primary : .outline,
+                  size: .sm,
+                  mainAxisSize: .min,
+                  onPress: () => onSelectGroup(null),
+                  child: Text(
                     'সকল',
                     style: AppTypography.bangla(
                       fontSize: 13,
@@ -74,18 +83,19 @@ class SubjectListPane extends StatelessWidget {
                           ? FontWeight.w600
                           : FontWeight.w500,
                       color: selectedGroup == null
-                          ? palette.onPrimary
-                          : palette.textPrimary,
+                          ? colors.primaryForeground
+                          : colors.foreground,
                     ),
                   ),
-                  selected: selectedGroup == null,
-                  onSelected: (_) => onSelectGroup(null),
                 ),
                 const SizedBox(width: 6),
                 for (final group in AcademicGroup.values) ...[
-                  ChoiceChip(
-                    showCheckmark: false,
-                    label: Text(
+                  FButton(
+                    variant: selectedGroup == group ? .primary : .outline,
+                    size: .sm,
+                    mainAxisSize: .min,
+                    onPress: () => onSelectGroup(group),
+                    child: Text(
                       group.labelBn,
                       style: AppTypography.bangla(
                         fontSize: 13,
@@ -93,12 +103,10 @@ class SubjectListPane extends StatelessWidget {
                             ? FontWeight.w600
                             : FontWeight.w500,
                         color: selectedGroup == group
-                            ? palette.onPrimary
-                            : palette.textPrimary,
+                            ? colors.primaryForeground
+                            : colors.foreground,
                       ),
                     ),
-                    selected: selectedGroup == group,
-                    onSelected: (_) => onSelectGroup(group),
                   ),
                   const SizedBox(width: 6),
                 ],
@@ -113,7 +121,7 @@ class SubjectListPane extends StatelessWidget {
                 ? const AppEmptyView(
                     title: 'No subjects found',
                     subtitle: 'Adjust filters or add a subject for this level.',
-                    icon: PhosphorIconsRegular.books,
+                    icon: FPhosphorIcons.books,
                   )
                 : ListView.separated(
                     padding: const EdgeInsets.all(10),
@@ -158,17 +166,17 @@ class _SubjectTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
+    return FTappable(
+      onPress: onTap,
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? palette.primaryTint : palette.canvas,
+          color: isSelected ? colors.secondary : colors.background,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? palette.primary : palette.border,
+            color: isSelected ? colors.primary : colors.border,
           ),
         ),
         child: Column(
@@ -182,35 +190,53 @@ class _SubjectTile extends StatelessWidget {
                     style: AppTypography.bangla(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: isSelected ? palette.primary : palette.textPrimary,
+                      color: isSelected ? colors.primary : colors.foreground,
                     ),
                   ),
                 ),
                 if (subject.isArchived) StatusBadge.neutral('Archived'),
                 if (canEdit)
-                  PopupMenuButton<String>(
-                    tooltip: 'Subject actions',
-                    icon: const Icon(
-                      PhosphorIconsRegular.dotsThreeVertical,
-                      size: 16,
-                    ),
-                    onSelected: (action) {
-                      if (action == 'edit') onEdit();
-                      if (action == 'archive') onToggleArchive();
-                    },
-                    itemBuilder: (_) => [
-                      const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                      PopupMenuItem(
-                        value: 'archive',
-                        child: Text(subject.isArchived ? 'Restore' : 'Archive'),
+                  FPopoverMenu(
+                    semanticsLabel: 'Subject actions',
+                    menuBuilder: (context, controller, _) => [
+                      FItemGroup(
+                        children: [
+                          FItem(
+                            title: const Text('Edit'),
+                            onPress: () {
+                              controller.hide();
+                              onEdit();
+                            },
+                          ),
+                          FItem(
+                            title: Text(
+                              subject.isArchived ? 'Restore' : 'Archive',
+                            ),
+                            onPress: () {
+                              controller.hide();
+                              onToggleArchive();
+                            },
+                          ),
+                        ],
                       ),
                     ],
+                    builder: (context, controller, _) => FButton.icon(
+                      variant: .ghost,
+                      size: .xs,
+                      semanticsLabel: 'Subject actions',
+                      semanticsTooltip: 'Subject actions',
+                      onPress: controller.toggle,
+                      child: const Icon(
+                        FPhosphorIcons.dotsThreeVertical,
+                        size: 16,
+                      ),
+                    ),
                   ),
               ],
             ),
             Text(
               subject.nameEn,
-              style: TextStyle(fontSize: 12.5, color: palette.textSecondary),
+              style: typography.body.xs.copyWith(color: colors.mutedForeground),
             ),
             const SizedBox(height: 6),
             Wrap(

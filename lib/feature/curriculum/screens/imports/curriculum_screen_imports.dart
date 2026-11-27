@@ -12,4 +12,4 @@ export 'package:chapterno_admin/feature/curriculum/utils/curriculum_dialog_actio
 export 'package:chapterno_admin/shared/widgets/state_views.dart';
 export 'package:flutter_bloc/flutter_bloc.dart';
 export 'package:material_ui/material_ui.dart';
-export 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
+export 'package:forui_phosphor/forui_phosphor.dart';

@@ -36,25 +36,26 @@ class BulkImportContextPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: palette.surface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: palette.border),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(PhosphorIconsRegular.crosshair, size: 18),
+              const Icon(FPhosphorIcons.crosshair, size: 18),
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 'Import Target',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                style: typography.body.lg.copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -67,53 +68,53 @@ class BulkImportContextPicker extends StatelessWidget {
                 context,
                 label: 'Education Level',
                 width: 220,
-                child: DropdownButtonFormField<String>(
-                  initialValue: selectedLevelId,
-                  isExpanded: true,
-                  decoration: const InputDecoration(labelText: 'Level'),
-                  items: [
+                child: FSelect<String>.rich(
+                  label: const Text('Level'),
+                  enabled: levels.isNotEmpty,
+                  control: FSelectControl<String>.managed(
+                    initial: selectedLevelId,
+                    onChange: (value) {
+                      if (value != null) onSelectLevel(value);
+                    },
+                  ),
+                  format: _levelLabel,
+                  children: [
                     for (final level in levels)
-                      DropdownMenuItem(
+                      FSelectItem<String>(
                         value: level.id,
-                        child: Text(
+                        title: Text(
                           '${level.nameEn} (${level.code})',
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                   ],
-                  onChanged:
-                      levels.isEmpty
-                      ? null
-                      : (value) {
-                          if (value != null) onSelectLevel(value);
-                        },
                 ),
               ),
               _buildField(
                 context,
                 label: 'Subject',
                 width: 240,
-                child: DropdownButtonFormField<String>(
-                  initialValue: selectedSubjectId,
-                  isExpanded: true,
-                  decoration: const InputDecoration(labelText: 'Subject'),
-                  items: [
+                child: FSelect<String>.rich(
+                  label: const Text('Subject'),
+                  enabled: subjects.isNotEmpty,
+                  control: FSelectControl<String>.managed(
+                    initial: selectedSubjectId,
+                    onChange: (value) {
+                      if (value != null) onSelectSubject(value);
+                    },
+                  ),
+                  format: _subjectLabel,
+                  children: [
                     for (final subject in subjects)
-                      DropdownMenuItem(
+                      FSelectItem<String>(
                         value: subject.id,
-                        child: Text(
+                        title: Text(
                           subject.nameBn,
                           overflow: TextOverflow.ellipsis,
                           style: AppTypography.bangla(fontSize: 13.5),
                         ),
                       ),
                   ],
-                  onChanged:
-                      subjects.isEmpty
-                      ? null
-                      : (value) {
-                          if (value != null) onSelectSubject(value);
-                        },
                 ),
               ),
               _buildField(
@@ -126,56 +127,58 @@ class BulkImportContextPicker extends StatelessWidget {
                         child: SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: FCircularProgress(size: .sm),
                         ),
                       )
-                    : DropdownButtonFormField<String?>(
-                        initialValue: selectedChapterId,
-                        isExpanded: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Default chapter',
+                    : FSelect<String?>.rich(
+                        label: const Text('Default chapter'),
+                        control: FSelectControl<String?>.managed(
+                          initial: selectedChapterId,
+                          onChange: onSelectChapter,
                         ),
-                        items: [
-                          const DropdownMenuItem<String?>(
+                        format: _chapterLabel,
+                        children: [
+                          const FSelectItem<String?>(
                             value: null,
-                            child: Text('None — use chapter_code'),
+                            title: Text('None — use chapter_code'),
                           ),
                           for (final chapter in chapters)
-                            DropdownMenuItem<String?>(
+                            FSelectItem<String?>(
                               value: chapter.id,
-                              child: Text(
+                              title: Text(
                                 '${chapter.code} — ${chapter.nameBn}',
                                 overflow: TextOverflow.ellipsis,
                                 style: AppTypography.bangla(fontSize: 13.5),
                               ),
                             ),
                         ],
-                        onChanged: (value) => onSelectChapter(value),
                       ),
               ),
               _buildField(
                 context,
                 label: 'Default Board (optional)',
                 width: 220,
-                child: DropdownButtonFormField<String?>(
-                  initialValue: selectedBoardId,
-                  isExpanded: true,
-                  decoration: const InputDecoration(labelText: 'Board'),
-                  items: [
-                    const DropdownMenuItem<String?>(
+                child: FSelect<String?>.rich(
+                  label: const Text('Board'),
+                  control: FSelectControl<String?>.managed(
+                    initial: selectedBoardId,
+                    onChange: onSelectBoard,
+                  ),
+                  format: _boardLabel,
+                  children: [
+                    const FSelectItem<String?>(
                       value: null,
-                      child: Text('None'),
+                      title: Text('None'),
                     ),
                     for (final board in boards)
-                      DropdownMenuItem<String?>(
+                      FSelectItem<String?>(
                         value: board.id,
-                        child: Text(
+                        title: Text(
                           board.nameEn,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                   ],
-                  onChanged: (value) => onSelectBoard(value),
                 ),
               ),
             ],
@@ -185,13 +188,34 @@ class BulkImportContextPicker extends StatelessWidget {
     );
   }
 
+  String _levelLabel(String id) {
+    final level = levels.firstWhere((level) => level.id == id);
+    return '${level.nameEn} (${level.code})';
+  }
+
+  String _subjectLabel(String id) {
+    return subjects.firstWhere((subject) => subject.id == id).nameBn;
+  }
+
+  String _chapterLabel(String? id) {
+    if (id == null) return 'None — use chapter_code';
+    final chapter = chapters.firstWhere((chapter) => chapter.id == id);
+    return '${chapter.code} — ${chapter.nameBn}';
+  }
+
+  String _boardLabel(String? id) {
+    if (id == null) return 'None';
+    return boards.firstWhere((board) => board.id == id).nameEn;
+  }
+
   Widget _buildField(
     BuildContext context, {
     required String label,
     required double width,
     required Widget child,
   }) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: width),
       child: Column(
@@ -199,7 +223,7 @@ class BulkImportContextPicker extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(color: palette.textSecondary, fontSize: 12),
+            style: typography.body.xs.copyWith(color: colors.mutedForeground),
           ),
           const SizedBox(height: 4),
           child,

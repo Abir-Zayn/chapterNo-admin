@@ -9,6 +9,8 @@ export 'package:chapterno_admin/feature/bulk_import/domain/repositories/bulk_imp
 export 'package:chapterno_admin/feature/bulk_import/screens/bloc/bulk_import_cubit.dart';
 export 'package:chapterno_admin/feature/curriculum/domain/repositories/curriculum_repository.dart';
 export 'package:chapterno_admin/feature/curriculum/screens/bloc/curriculum_cubit.dart';
+export 'package:chapterno_admin/feature/question_bank/domain/repositories/question_bank_repository.dart';
+export 'package:chapterno_admin/feature/question_bank/screens/bloc/question_bank_cubit.dart';
 export 'package:chapterno_admin/theme/theme.dart';
 export 'package:flutter_bloc/flutter_bloc.dart';
 export 'package:forui/forui.dart';

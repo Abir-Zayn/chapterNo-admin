@@ -30,12 +30,13 @@ class ChapterListPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
     return Container(
       decoration: BoxDecoration(
-        color: palette.surface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: palette.border),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -44,17 +45,22 @@ class ChapterListPane extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 12, 12, 10),
             child: Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Chapters',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                    style: typography.body.md.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
                 if (canEdit && hasSelectedSubject)
-                  FilledButton.tonalIcon(
-                    onPressed: onAddChapter,
-                    icon: const Icon(PhosphorIconsRegular.plus, size: 15),
-                    label: const Text('Add Chapter'),
+                  FButton(
+                    variant: .outline,
+                    size: .sm,
+                    mainAxisSize: .min,
+                    onPress: onAddChapter,
+                    prefix: const Icon(FPhosphorIcons.plus, size: 15),
+                    child: const Text('Add Chapter'),
                   ),
               ],
             ),
@@ -65,7 +71,7 @@ class ChapterListPane extends StatelessWidget {
                 ? const AppEmptyView(
                     title: 'Select a subject',
                     subtitle: 'Choose a subject to view and manage chapters.',
-                    icon: PhosphorIconsRegular.bookOpen,
+                    icon: FPhosphorIcons.bookOpen,
                   )
                 : isLoading
                 ? const AppLoadingView(message: 'Loading chapters...')
@@ -74,7 +80,7 @@ class ChapterListPane extends StatelessWidget {
                     title: 'No chapters yet',
                     subtitle:
                         'Add the first textbook chapter for this subject.',
-                    icon: PhosphorIconsRegular.listNumbers,
+                    icon: FPhosphorIcons.listNumbers,
                   )
                 : ReorderableListView.builder(
                     padding: const EdgeInsets.all(10),
@@ -127,17 +133,17 @@ class _ChapterTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
+    return FTappable(
+      onPress: onTap,
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? palette.primaryTint : palette.canvas,
+          color: isSelected ? colors.secondary : colors.background,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? palette.primary : palette.border,
+            color: isSelected ? colors.primary : colors.border,
           ),
         ),
         child: Row(
@@ -149,9 +155,9 @@ class _ChapterTile extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 8, top: 2),
                   child: Icon(
-                    PhosphorIconsRegular.dotsSixVertical,
+                    FPhosphorIcons.dotsSixVertical,
                     size: 18,
-                    color: palette.textSecondary,
+                    color: colors.mutedForeground,
                   ),
                 ),
               ),
@@ -167,9 +173,8 @@ class _ChapterTile extends StatelessWidget {
                       const Spacer(),
                       Text(
                         '${chapter.topics.length} topics',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          color: palette.textSecondary,
+                        style: typography.body.xs.copyWith(
+                          color: colors.mutedForeground,
                         ),
                       ),
                     ],
@@ -180,37 +185,49 @@ class _ChapterTile extends StatelessWidget {
                     style: AppTypography.bangla(
                       fontSize: 14.5,
                       fontWeight: FontWeight.w600,
-                      color: isSelected ? palette.primary : palette.textPrimary,
+                      color: isSelected ? colors.primary : colors.foreground,
                     ),
                   ),
                   Text(
                     chapter.nameEn,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: palette.textSecondary,
+                    style: typography.body.xs.copyWith(
+                      color: colors.mutedForeground,
                     ),
                   ),
                 ],
               ),
             ),
             if (canEdit)
-              PopupMenuButton<String>(
-                tooltip: 'Chapter actions',
-                icon: const Icon(
-                  PhosphorIconsRegular.dotsThreeVertical,
-                  size: 16,
-                ),
-                onSelected: (action) {
-                  if (action == 'edit') onEdit();
-                  if (action == 'archive') onToggleArchive();
-                },
-                itemBuilder: (_) => [
-                  const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                  PopupMenuItem(
-                    value: 'archive',
-                    child: Text(chapter.isArchived ? 'Restore' : 'Archive'),
+              FPopoverMenu(
+                semanticsLabel: 'Chapter actions',
+                menuBuilder: (context, controller, _) => [
+                  FItemGroup(
+                    children: [
+                      FItem(
+                        title: const Text('Edit'),
+                        onPress: () {
+                          controller.hide();
+                          onEdit();
+                        },
+                      ),
+                      FItem(
+                        title: Text(chapter.isArchived ? 'Restore' : 'Archive'),
+                        onPress: () {
+                          controller.hide();
+                          onToggleArchive();
+                        },
+                      ),
+                    ],
                   ),
                 ],
+                builder: (context, controller, _) => FButton.icon(
+                  variant: .ghost,
+                  size: .xs,
+                  semanticsLabel: 'Chapter actions',
+                  semanticsTooltip: 'Chapter actions',
+                  onPress: controller.toggle,
+                  child: const Icon(FPhosphorIcons.dotsThreeVertical, size: 16),
+                ),
               ),
           ],
         ),
@@ -245,12 +262,13 @@ class TopicListPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
     return Container(
       decoration: BoxDecoration(
-        color: palette.surface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: palette.border),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -259,17 +277,22 @@ class TopicListPane extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 12, 12, 10),
             child: Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Topics',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                    style: typography.body.md.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
                 if (canEdit && hasSelectedChapter)
-                  FilledButton.tonalIcon(
-                    onPressed: onAddTopic,
-                    icon: const Icon(PhosphorIconsRegular.plus, size: 15),
-                    label: const Text('Add Topic'),
+                  FButton(
+                    variant: .outline,
+                    size: .sm,
+                    mainAxisSize: .min,
+                    onPress: onAddTopic,
+                    prefix: const Icon(FPhosphorIcons.plus, size: 15),
+                    child: const Text('Add Topic'),
                   ),
               ],
             ),
@@ -280,13 +303,13 @@ class TopicListPane extends StatelessWidget {
                 ? const AppEmptyView(
                     title: 'Select a chapter',
                     subtitle: 'Choose a chapter to inspect or reorder topics.',
-                    icon: PhosphorIconsRegular.tag,
+                    icon: FPhosphorIcons.tag,
                   )
                 : topics.isEmpty
                 ? const AppEmptyView(
                     title: 'No topics yet',
                     subtitle: 'Add granular concepts under this chapter.',
-                    icon: PhosphorIconsRegular.tag,
+                    icon: FPhosphorIcons.tag,
                   )
                 : ReorderableListView.builder(
                     padding: const EdgeInsets.all(10),
@@ -301,9 +324,9 @@ class TopicListPane extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: palette.canvas,
+                            color: colors.background,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: palette.border),
+                            border: Border.all(color: colors.border),
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,9 +340,9 @@ class TopicListPane extends StatelessWidget {
                                       top: 2,
                                     ),
                                     child: Icon(
-                                      PhosphorIconsRegular.dotsSixVertical,
+                                      FPhosphorIcons.dotsSixVertical,
                                       size: 18,
-                                      color: palette.textSecondary,
+                                      color: colors.mutedForeground,
                                     ),
                                   ),
                                 ),
@@ -344,62 +367,70 @@ class TopicListPane extends StatelessWidget {
                                     ),
                                     Text(
                                       topic.nameEn,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: palette.textSecondary,
+                                      style: typography.body.xs.copyWith(
+                                        color: colors.mutedForeground,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       topic.code,
-                                      style: TextStyle(
-                                        fontSize: 11.5,
-                                        color: palette.textSecondary,
+                                      style: typography.body.xs.copyWith(
+                                        color: colors.mutedForeground,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
                               if (canEdit)
-                                PopupMenuButton<String>(
-                                  tooltip: 'Topic actions',
-                                  icon: const Icon(
-                                    PhosphorIconsRegular.dotsThreeVertical,
-                                    size: 16,
-                                  ),
-                                  onSelected: (action) {
-                                    if (action == 'edit') onEditTopic(topic);
-                                    if (action == 'archive') {
-                                      onToggleArchive(topic);
-                                    }
-                                    if (action == 'delete') {
-                                      onDeleteTopic(topic);
-                                    }
-                                  },
-                                  itemBuilder: (_) => [
-                                    const PopupMenuItem(
-                                      value: 'edit',
-                                      child: Text('Edit'),
-                                    ),
-                                    PopupMenuItem(
-                                      value: 'archive',
-                                      child: Text(
-                                        topic.isArchived
-                                            ? 'Restore'
-                                            : 'Archive',
-                                      ),
-                                    ),
-                                    if (canDelete)
-                                      PopupMenuItem(
-                                        value: 'delete',
-                                        child: Text(
-                                          'Delete (Unreferenced)',
-                                          style: TextStyle(
-                                            color: palette.error,
+                                FPopoverMenu(
+                                  semanticsLabel: 'Topic actions',
+                                  menuBuilder: (context, controller, _) => [
+                                    FItemGroup(
+                                      children: [
+                                        FItem(
+                                          title: const Text('Edit'),
+                                          onPress: () {
+                                            controller.hide();
+                                            onEditTopic(topic);
+                                          },
+                                        ),
+                                        FItem(
+                                          title: Text(
+                                            topic.isArchived
+                                                ? 'Restore'
+                                                : 'Archive',
                                           ),
+                                          onPress: () {
+                                            controller.hide();
+                                            onToggleArchive(topic);
+                                          },
+                                        ),
+                                        if (canDelete)
+                                          FItem(
+                                            variant: .destructive,
+                                            title: const Text(
+                                              'Delete (Unreferenced)',
+                                            ),
+                                            onPress: () {
+                                              controller.hide();
+                                              onDeleteTopic(topic);
+                                            },
+                                          ),
+                                      ],
+                                    ),
+                                  ],
+                                  builder: (context, controller, _) =>
+                                      FButton.icon(
+                                        variant: .ghost,
+                                        size: .xs,
+                                        semanticsLabel: 'Topic actions',
+                                        semanticsTooltip: 'Topic actions',
+                                        onPress: controller.toggle,
+                                        child: const Icon(
+                                          FPhosphorIcons.dotsThreeVertical,
+                                          size: 16,
                                         ),
                                       ),
-                                  ],
                                 ),
                             ],
                           ),

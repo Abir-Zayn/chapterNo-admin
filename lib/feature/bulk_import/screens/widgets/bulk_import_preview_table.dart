@@ -22,13 +22,14 @@ class BulkImportPreviewTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: palette.surface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: palette.border),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -36,17 +37,16 @@ class BulkImportPreviewTable extends StatelessWidget {
           Row(
             children: [
               Icon(
-                PhosphorIconsRegular.table,
+                FPhosphorIcons.table,
                 size: 18,
-                color: palette.textSecondary,
+                color: colors.mutedForeground,
               ),
               const SizedBox(width: 8),
               Text(
                 'Preview & Validation',
-                style: TextStyle(
-                  fontSize: 15,
+                style: typography.body.lg.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: palette.textPrimary,
+                  color: colors.foreground,
                 ),
               ),
             ],
@@ -59,47 +59,52 @@ class BulkImportPreviewTable extends StatelessWidget {
               _CounterChip(
                 label: 'Total',
                 value: totalRows,
-                color: palette.primary,
+                color: colors.primary,
               ),
               _CounterChip(
                 label: 'Valid',
                 value: validRowCount,
-                color: palette.success,
+                color: colors.primary,
               ),
               _CounterChip(
                 label: 'Errors',
                 value: errorRowCount,
-                color: palette.error,
+                color: colors.error,
               ),
             ],
           ),
           const SizedBox(height: 12),
-          SegmentedButton<RowViewFilter>(
-            segments: [
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
               for (final filter in RowViewFilter.values)
-                ButtonSegment(
-                  value: filter,
-                  label: Text(filter.label),
+                FButton(
+                  variant: rowFilter == filter ? .primary : .outline,
+                  size: .sm,
+                  mainAxisSize: .min,
+                  onPress: () {
+                    if (filter != rowFilter) onSetRowFilter(filter);
+                  },
+                  child: Text(filter.label),
                 ),
             ],
-            selected: {rowFilter},
-            onSelectionChanged: (selection) =>
-                onSetRowFilter(selection.first),
-            showSelectedIcon: false,
           ),
           const SizedBox(height: 8),
-          Expanded(child: _buildBody(context, palette)),
+          Expanded(child: _buildBody(context)),
         ],
       ),
     );
   }
 
-  Widget _buildBody(BuildContext context, AppPalette palette) {
+  Widget _buildBody(BuildContext context) {
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
     if (totalRows == 0) {
       return Center(
         child: Text(
           'No rows to preview yet — pick a file or paste CSV / JSON and parse.',
-          style: TextStyle(color: palette.textSecondary, fontSize: 13),
+          style: typography.body.sm.copyWith(color: colors.mutedForeground),
           textAlign: TextAlign.center,
         ),
       );
@@ -108,7 +113,7 @@ class BulkImportPreviewTable extends StatelessWidget {
       return Center(
         child: Text(
           'No rows match the current filter.',
-          style: TextStyle(color: palette.textSecondary, fontSize: 13),
+          style: typography.body.sm.copyWith(color: colors.mutedForeground),
         ),
       );
     }
@@ -134,21 +139,21 @@ class _CounterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: palette.surfaceSubtle,
+        color: colors.secondary,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: palette.border),
+        border: Border.all(color: colors.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             '$value',
-            style: TextStyle(
-              fontSize: 14,
+            style: typography.body.md.copyWith(
               fontWeight: FontWeight.w700,
               color: color,
             ),
@@ -156,10 +161,7 @@ class _CounterChip extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 12,
-              color: palette.textSecondary,
-            ),
+            style: typography.body.xs.copyWith(color: colors.mutedForeground),
           ),
         ],
       ),
@@ -174,151 +176,168 @@ class _PreviewRowCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
     final levelLabel = McqLevel.tryParse(row.level)?.label ?? row.level;
     return Container(
       decoration: BoxDecoration(
-        color: palette.surface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: row.isValid ? palette.border : palette.error.withValues(alpha: 0.35),
+          color: row.isValid
+              ? colors.border
+              : colors.error.withValues(alpha: 0.35),
         ),
       ),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: !row.isValid && row.errors.isNotEmpty,
-          tilePadding: const EdgeInsets.symmetric(horizontal: 12),
-          childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-          title: Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text(
-                '#${row.rowNumber}',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: palette.textSecondary,
-                ),
-              ),
-              if (row.externalCode != null)
-                Text(
-                  row.externalCode!,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontFamily: 'monospace',
-                    color: palette.textSecondary,
-                  ),
-                ),
-              StatusBadge.neutral(levelLabel),
-              if (row.isValid)
-                StatusBadge.active('Valid')
-              else
-                StatusBadge(
-                  label: '${row.errors.length} error(s)',
-                  backgroundColor: palette.errorTint,
-                  foregroundColor: palette.error,
-                  borderColor: palette.error.withValues(alpha: 0.35),
-                ),
-            ],
-          ),
-          subtitle: Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: MathPreviewText(
-              text: row.title.isEmpty ? '(empty title)' : row.title,
-              fontSize: 13,
-            ),
-          ),
-          children: [
-            for (final error in row.errors)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: palette.errorTint,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: palette.error.withValues(alpha: 0.35)),
-                  ),
-                  child: Text(
-                    error,
-                    style: TextStyle(fontSize: 12, color: palette.error),
-                  ),
-                ),
-              ),
-            for (final option in row.options)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (option.key == row.correctAns)
-                      Icon(
-                        PhosphorIconsRegular.checkCircle,
-                        size: 16,
-                        color: palette.success,
-                      )
-                    else
-                      Icon(
-                        PhosphorIconsRegular.circle,
-                        size: 16,
-                        color: palette.border,
+      child: FAccordion(
+        control: const FAccordionControl.managed(max: 1),
+        children: [
+          FAccordionItem(
+            initiallyExpanded: !row.isValid && row.errors.isNotEmpty,
+            dividerBuilder: (_, _) => const SizedBox.shrink(),
+            title: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        '#${row.rowNumber}',
+                        style: typography.body.xs.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: colors.mutedForeground,
+                        ),
                       ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${option.key}:',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: palette.textSecondary,
+                      if (row.externalCode != null)
+                        Text(
+                          row.externalCode!,
+                          style: typography.body.xs.copyWith(
+                            fontFamily: 'monospace',
+                            color: colors.mutedForeground,
+                          ),
+                        ),
+                      StatusBadge.neutral(levelLabel),
+                      if (row.isValid)
+                        StatusBadge.active('Valid')
+                      else
+                        StatusBadge(
+                          label: '${row.errors.length} error(s)',
+                          backgroundColor: colors.error.withValues(alpha: 0.1),
+                          foregroundColor: colors.error,
+                          borderColor: colors.error.withValues(alpha: 0.35),
+                        ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: MathPreviewText(
+                      text: row.title.isEmpty ? '(empty title)' : row.title,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final error in row.errors)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: colors.error.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: colors.error.withValues(alpha: 0.35),
+                          ),
+                        ),
+                        child: Text(
+                          error,
+                          style: typography.body.xs.copyWith(
+                            color: colors.error,
+                          ),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: option.isBlank
-                          ? Text(
-                              '(blank)',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: palette.textSecondary,
-                              ),
+                  for (final option in row.options)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (option.key == row.correctAns)
+                            Icon(
+                              FPhosphorIcons.checkCircle,
+                              size: 16,
+                              color: colors.primary,
                             )
-                          : MathPreviewText(
-                              text: option.text,
-                              fontSize: 13,
+                          else
+                            Icon(
+                              FPhosphorIcons.circle,
+                              size: 16,
+                              color: colors.border,
                             ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${option.key}:',
+                            style: typography.body.xs.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: colors.mutedForeground,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: option.isBlank
+                                ? Text(
+                                    '(blank)',
+                                    style: typography.body.xs.copyWith(
+                                      color: colors.mutedForeground,
+                                    ),
+                                  )
+                                : MathPreviewText(
+                                    text: option.text,
+                                    fontSize: 13,
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (row.explanation != null &&
+                      row.explanation!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'Explanation',
+                      style: typography.body.xs.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: colors.mutedForeground,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    MathPreviewText(text: row.explanation!, fontSize: 13),
+                  ],
+                  if (row.resolvedChapterId != null) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      'Resolves to chapter_id ${row.resolvedChapterId}',
+                      style: typography.body.xs.copyWith(
+                        color: colors.mutedForeground,
+                      ),
                     ),
                   ],
-                ),
+                ],
               ),
-            if (row.explanation != null && row.explanation!.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(
-                'Explanation',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: palette.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 2),
-              MathPreviewText(text: row.explanation!, fontSize: 13),
-            ],
-            if (row.resolvedChapterId != null) ...[
-              const SizedBox(height: 6),
-              Text(
-                'Resolves to chapter_id ${row.resolvedChapterId}',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: palette.textSecondary,
-                ),
-              ),
-            ],
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }

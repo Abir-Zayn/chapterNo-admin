@@ -9,6 +9,7 @@ class ChapterNoAdminApp extends StatefulWidget {
     required this.authRepository,
     this.curriculumRepository,
     this.bulkImportRepository,
+    this.questionBankRepository,
     this.restoreSessionOnInit = true,
   });
 
@@ -16,6 +17,7 @@ class ChapterNoAdminApp extends StatefulWidget {
   final AuthRepository authRepository;
   final CurriculumRepository? curriculumRepository;
   final BulkImportRepository? bulkImportRepository;
+  final QuestionBankRepository? questionBankRepository;
   final bool restoreSessionOnInit;
 
   @override
@@ -27,6 +29,7 @@ class _ChapterNoAdminAppState extends State<ChapterNoAdminApp> {
   late final ThemeCubit _themeCubit;
   CurriculumCubit? _curriculumCubit;
   BulkImportCubit? _bulkImportCubit;
+  QuestionBankCubit? _questionBankCubit;
   late final AppRouter _appRouter;
 
   @override
@@ -44,6 +47,13 @@ class _ChapterNoAdminAppState extends State<ChapterNoAdminApp> {
         widget.curriculumRepository!,
       );
     }
+    if (widget.curriculumRepository != null &&
+        widget.questionBankRepository != null) {
+      _questionBankCubit = QuestionBankCubit(
+        widget.questionBankRepository!,
+        widget.curriculumRepository!,
+      );
+    }
     _appRouter = AppRouter(authCubit: _authCubit, envConfig: widget.envConfig);
     if (widget.restoreSessionOnInit) {
       _authCubit.restoreSession();
@@ -55,6 +65,7 @@ class _ChapterNoAdminAppState extends State<ChapterNoAdminApp> {
     _appRouter.dispose();
     _curriculumCubit?.close();
     _bulkImportCubit?.close();
+    _questionBankCubit?.close();
     _themeCubit.close();
     _authCubit.close();
     super.dispose();
@@ -94,6 +105,10 @@ class _ChapterNoAdminAppState extends State<ChapterNoAdminApp> {
           RepositoryProvider<BulkImportRepository>.value(
             value: widget.bulkImportRepository!,
           ),
+        if (widget.questionBankRepository != null)
+          RepositoryProvider<QuestionBankRepository>.value(
+            value: widget.questionBankRepository!,
+          ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -103,6 +118,8 @@ class _ChapterNoAdminAppState extends State<ChapterNoAdminApp> {
             BlocProvider<CurriculumCubit>.value(value: _curriculumCubit!),
           if (_bulkImportCubit != null)
             BlocProvider<BulkImportCubit>.value(value: _bulkImportCubit!),
+          if (_questionBankCubit != null)
+            BlocProvider<QuestionBankCubit>.value(value: _questionBankCubit!),
         ],
         child: app,
       ),

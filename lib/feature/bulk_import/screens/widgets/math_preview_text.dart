@@ -12,10 +12,10 @@ class MathPreviewText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
     final baseStyle = AppTypography.bangla(
       fontSize: fontSize,
-      color: palette.textPrimary,
+      color: colors.foreground,
     );
 
     return Text.rich(
@@ -30,7 +30,10 @@ class MathPreviewText extends StatelessWidget {
     for (final match in _latexPattern.allMatches(text)) {
       if (match.start > lastEnd) {
         spans.add(
-          TextSpan(text: text.substring(lastEnd, match.start), style: baseStyle),
+          TextSpan(
+            text: text.substring(lastEnd, match.start),
+            style: baseStyle,
+          ),
         );
       }
       final tex = match.group(1)!;

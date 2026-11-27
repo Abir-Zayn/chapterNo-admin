@@ -48,6 +48,9 @@ Future<void> bootstrap() async {
       );
       final curriculumRepository = GraphQLCurriculumRepository(graphqlService);
       final bulkImportRepository = SupabaseBulkImportRepository(supabaseService);
+      final questionBankRepository = SupabaseQuestionBankRepository(
+        Supabase.instance.client,
+      );
 
       runApp(
         ChapterNoAdminApp(
@@ -55,6 +58,7 @@ Future<void> bootstrap() async {
           authRepository: authRepository,
           curriculumRepository: curriculumRepository,
           bulkImportRepository: bulkImportRepository,
+          questionBankRepository: questionBankRepository,
         ),
       );
     },

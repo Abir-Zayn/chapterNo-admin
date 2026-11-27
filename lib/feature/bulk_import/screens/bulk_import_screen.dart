@@ -24,8 +24,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
     final role = context.select(
       (AuthCubit cubit) => cubit.state.adminUser?.role ?? AdminRole.reviewer,
     );
-    final canImport =
-        role == AdminRole.superAdmin || role == AdminRole.editor;
+    final canImport = role == AdminRole.superAdmin || role == AdminRole.editor;
 
     return BlocConsumer<BulkImportCubit, BulkImportState>(
       listenWhen: (previous, current) =>
@@ -59,18 +58,19 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
                 'Your reviewer role can browse the curriculum and question '
                 'bank, but bulk MCQ imports are limited to super admins and '
                 'editors.',
-            icon: PhosphorIconsRegular.shieldWarning,
+            icon: FPhosphorIcons.shieldWarning,
           );
         }
+        final colors = context.theme.colors;
+        final typography = context.theme.typography;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               'Bulk CSV / JSON Importer',
-              style: TextStyle(
-                fontSize: 18,
+              style: typography.body.xl2.copyWith(
                 fontWeight: FontWeight.w700,
-                color: AppPalette.of(context).textPrimary,
+                color: colors.foreground,
               ),
             ),
             const SizedBox(height: 4),
@@ -78,10 +78,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
               'Import MCQ rows from Google Sheets or Gemini exports into the '
               'selected subject — validated locally before touching the '
               'database.',
-              style: TextStyle(
-                fontSize: 12.5,
-                color: AppPalette.of(context).textSecondary,
-              ),
+              style: typography.body.sm.copyWith(color: colors.mutedForeground),
             ),
             const SizedBox(height: 14),
             BulkImportContextPicker(
@@ -103,8 +100,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
               const SizedBox(height: 12),
               AppErrorBanner(
                 message: state.errorMessage ?? '',
-                onDismiss: () =>
-                    context.read<BulkImportCubit>().clearError(),
+                onDismiss: () => context.read<BulkImportCubit>().clearError(),
               ),
             ],
             if (state.encodingWarning != null) ...[
@@ -118,10 +114,12 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
               sourceText: state.sourceText,
               canImport: !state.isSubmitting,
               onSetInputMode: context.read<BulkImportCubit>().setInputMode,
-              onUpdateSourceText:
-                  context.read<BulkImportCubit>().updateSourceText,
-              onParseSourceText:
-                  context.read<BulkImportCubit>().parseSourceText,
+              onUpdateSourceText: context
+                  .read<BulkImportCubit>()
+                  .updateSourceText,
+              onParseSourceText: context
+                  .read<BulkImportCubit>()
+                  .parseSourceText,
               onIngestFile: context.read<BulkImportCubit>().ingestFile,
               onClearSource: context.read<BulkImportCubit>().clearSource,
             ),
@@ -145,8 +143,7 @@ class _BulkImportScreenState extends State<BulkImportScreen> {
               submitChunksTotal: state.submitChunksTotal,
               submitPhase: state.submitPhase,
               summary: state.summary,
-              onSubmit: () =>
-                  context.read<BulkImportCubit>().submitValidRows(),
+              onSubmit: () => context.read<BulkImportCubit>().submitValidRows(),
             ),
           ],
         );
@@ -162,31 +159,9 @@ class _EncodingWarningBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: palette.warningTint,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: palette.warningBorder),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            PhosphorIconsRegular.warningCircle,
-            size: 16,
-            color: palette.warning,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              message ?? '',
-              style: TextStyle(fontSize: 12.5, color: palette.warning),
-            ),
-          ),
-        ],
-      ),
+    return FAlert(
+      icon: const Icon(FPhosphorIcons.warningCircle),
+      title: Text(message ?? ''),
     );
   }
 }

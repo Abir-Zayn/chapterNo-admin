@@ -93,12 +93,13 @@ class _LevelsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
     return Container(
       decoration: BoxDecoration(
-        color: palette.surface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: palette.border),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -107,17 +108,22 @@ class _LevelsCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 12, 12, 10),
             child: Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Education Levels',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                    style: typography.body.md.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
                 if (canMutate)
-                  FilledButton.tonalIcon(
-                    onPressed: onAdd,
-                    icon: const Icon(PhosphorIconsRegular.plus, size: 15),
-                    label: const Text('Add Level'),
+                  FButton(
+                    variant: .outline,
+                    size: .sm,
+                    mainAxisSize: .min,
+                    onPress: onAdd,
+                    prefix: const Icon(FPhosphorIcons.plus, size: 15),
+                    child: const Text('Add Level'),
                   ),
               ],
             ),
@@ -128,7 +134,7 @@ class _LevelsCard extends StatelessWidget {
                 ? const AppEmptyView(
                     title: 'No education levels',
                     subtitle: 'Create an education level such as SSC or HSC.',
-                    icon: PhosphorIconsRegular.graduationCap,
+                    icon: FPhosphorIcons.graduationCap,
                   )
                 : ListView.separated(
                     padding: const EdgeInsets.all(10),
@@ -137,20 +143,19 @@ class _LevelsCard extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final level = levels[index];
                       final isSelected = level.id == selectedLevelId;
-                      return InkWell(
-                        onTap: () => onSelect(level.id),
-                        borderRadius: BorderRadius.circular(8),
+                      return FTappable(
+                        onPress: () => onSelect(level.id),
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? palette.primaryTint
-                                : palette.canvas,
+                                ? colors.secondary
+                                : colors.background,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: isSelected
-                                  ? palette.primary
-                                  : palette.border,
+                                  ? colors.primary
+                                  : colors.border,
                             ),
                           ),
                           child: Row(
@@ -168,9 +173,8 @@ class _LevelsCard extends StatelessWidget {
                                     ),
                                     Text(
                                       '${level.nameEn} (${level.code})',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: palette.textSecondary,
+                                      style: typography.body.xs.copyWith(
+                                        color: colors.mutedForeground,
                                       ),
                                     ),
                                   ],
@@ -179,31 +183,44 @@ class _LevelsCard extends StatelessWidget {
                               if (level.isArchived)
                                 StatusBadge.neutral('Archived'),
                               if (canMutate)
-                                PopupMenuButton<String>(
-                                  icon: const Icon(
-                                    PhosphorIconsRegular.dotsThreeVertical,
-                                    size: 16,
-                                  ),
-                                  onSelected: (action) {
-                                    if (action == 'edit') onEdit(level);
-                                    if (action == 'archive') {
-                                      onToggleArchive(level);
-                                    }
-                                  },
-                                  itemBuilder: (_) => [
-                                    const PopupMenuItem(
-                                      value: 'edit',
-                                      child: Text('Edit'),
-                                    ),
-                                    PopupMenuItem(
-                                      value: 'archive',
-                                      child: Text(
-                                        level.isArchived
-                                            ? 'Restore'
-                                            : 'Archive',
-                                      ),
+                                FPopoverMenu(
+                                  semanticsLabel: 'Education level actions',
+                                  menuBuilder: (context, controller, _) => [
+                                    FItemGroup(
+                                      children: [
+                                        FItem(
+                                          title: const Text('Edit'),
+                                          onPress: () {
+                                            controller.hide();
+                                            onEdit(level);
+                                          },
+                                        ),
+                                        FItem(
+                                          title: Text(
+                                            level.isArchived
+                                                ? 'Restore'
+                                                : 'Archive',
+                                          ),
+                                          onPress: () {
+                                            controller.hide();
+                                            onToggleArchive(level);
+                                          },
+                                        ),
+                                      ],
                                     ),
                                   ],
+                                  builder: (context, controller, _) =>
+                                      FButton.icon(
+                                        variant: .ghost,
+                                        size: .xs,
+                                        semanticsLabel:
+                                            'Education level actions',
+                                        onPress: controller.toggle,
+                                        child: const Icon(
+                                          FPhosphorIcons.dotsThreeVertical,
+                                          size: 16,
+                                        ),
+                                      ),
                                 ),
                             ],
                           ),
@@ -237,12 +254,13 @@ class _BoardsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
     return Container(
       decoration: BoxDecoration(
-        color: palette.surface,
+        color: colors.card,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: palette.border),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -251,17 +269,22 @@ class _BoardsCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 12, 12, 10),
             child: Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Education Boards',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                    style: typography.body.md.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
                 if (canMutate && hasSelectedLevel)
-                  FilledButton.tonalIcon(
-                    onPressed: onAdd,
-                    icon: const Icon(PhosphorIconsRegular.plus, size: 15),
-                    label: const Text('Add Board'),
+                  FButton(
+                    variant: .outline,
+                    size: .sm,
+                    mainAxisSize: .min,
+                    onPress: onAdd,
+                    prefix: const Icon(FPhosphorIcons.plus, size: 15),
+                    child: const Text('Add Board'),
                   ),
               ],
             ),
@@ -272,13 +295,13 @@ class _BoardsCard extends StatelessWidget {
                 ? const AppEmptyView(
                     title: 'Select an education level',
                     subtitle: 'Choose a level to view or manage boards.',
-                    icon: PhosphorIconsRegular.buildings,
+                    icon: FPhosphorIcons.buildings,
                   )
                 : boards.isEmpty
                 ? const AppEmptyView(
                     title: 'No boards found',
                     subtitle: 'Add Bangladesh education boards for this level.',
-                    icon: PhosphorIconsRegular.buildings,
+                    icon: FPhosphorIcons.buildings,
                   )
                 : ListView.separated(
                     padding: const EdgeInsets.all(10),
@@ -289,9 +312,9 @@ class _BoardsCard extends StatelessWidget {
                       return Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: palette.canvas,
+                          color: colors.background,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: palette.border),
+                          border: Border.all(color: colors.border),
                         ),
                         child: Row(
                           children: [
@@ -308,9 +331,8 @@ class _BoardsCard extends StatelessWidget {
                                   ),
                                   Text(
                                     '${board.nameEn} (${board.code})',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: palette.textSecondary,
+                                    style: typography.body.xs.copyWith(
+                                      color: colors.mutedForeground,
                                     ),
                                   ),
                                 ],
@@ -319,29 +341,43 @@ class _BoardsCard extends StatelessWidget {
                             if (board.isArchived)
                               StatusBadge.neutral('Archived'),
                             if (canMutate)
-                              PopupMenuButton<String>(
-                                icon: const Icon(
-                                  PhosphorIconsRegular.dotsThreeVertical,
-                                  size: 16,
-                                ),
-                                onSelected: (action) {
-                                  if (action == 'edit') onEdit(board);
-                                  if (action == 'archive') {
-                                    onToggleArchive(board);
-                                  }
-                                },
-                                itemBuilder: (_) => [
-                                  const PopupMenuItem(
-                                    value: 'edit',
-                                    child: Text('Edit'),
-                                  ),
-                                  PopupMenuItem(
-                                    value: 'archive',
-                                    child: Text(
-                                      board.isArchived ? 'Restore' : 'Archive',
-                                    ),
+                              FPopoverMenu(
+                                semanticsLabel: 'Education board actions',
+                                menuBuilder: (context, controller, _) => [
+                                  FItemGroup(
+                                    children: [
+                                      FItem(
+                                        title: const Text('Edit'),
+                                        onPress: () {
+                                          controller.hide();
+                                          onEdit(board);
+                                        },
+                                      ),
+                                      FItem(
+                                        title: Text(
+                                          board.isArchived
+                                              ? 'Restore'
+                                              : 'Archive',
+                                        ),
+                                        onPress: () {
+                                          controller.hide();
+                                          onToggleArchive(board);
+                                        },
+                                      ),
+                                    ],
                                   ),
                                 ],
+                                builder: (context, controller, _) =>
+                                    FButton.icon(
+                                      variant: .ghost,
+                                      size: .xs,
+                                      semanticsLabel: 'Education board actions',
+                                      onPress: controller.toggle,
+                                      child: const Icon(
+                                        FPhosphorIcons.dotsThreeVertical,
+                                        size: 16,
+                                      ),
+                                    ),
                               ),
                           ],
                         ),
