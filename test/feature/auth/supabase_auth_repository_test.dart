@@ -3,7 +3,7 @@
 import 'package:chapterno_admin/core/error/app_failure.dart';
 import 'package:chapterno_admin/core/supabase/supabase_service.dart';
 import 'package:chapterno_admin/feature/auth/data/supabase_auth_repository.dart';
-import 'package:chapterno_admin/feature/auth/domain/admin_user.dart';
+import 'package:chapterno_admin/feature/auth/types/admin_role.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

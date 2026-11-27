@@ -5,12 +5,17 @@ import 'package:chapterno_admin/config/env/env_config.dart';
 import 'package:chapterno_admin/core/error/app_failure.dart';
 import 'package:chapterno_admin/feature/auth/domain/admin_user.dart';
 import 'package:chapterno_admin/feature/auth/domain/auth_repository.dart';
+import 'package:chapterno_admin/feature/auth/types/admin_role.dart';
+import 'package:chapterno_admin/feature/curriculum/domain/entities/curriculum_root.dart';
+import 'package:chapterno_admin/feature/curriculum/domain/repositories/curriculum_repository.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockAuthRepository extends Mock implements AuthRepository {}
+
+class _MockCurriculumRepository extends Mock implements CurriculumRepository {}
 
 void main() {
   late _MockAuthRepository authRepository;
@@ -94,10 +99,17 @@ void main() {
       isActive: true,
     );
 
+    final curriculumRepository = _MockCurriculumRepository();
     when(() => authRepository.restoreSession()).thenAnswer((_) async => admin);
+    when(() => curriculumRepository.fetchRoot())
+        .thenAnswer((_) async => const CurriculumRoot(levels: [], boards: []));
 
     await tester.pumpWidget(
-      ChapterNoAdminApp(envConfig: envConfig, authRepository: authRepository),
+      ChapterNoAdminApp(
+        envConfig: envConfig,
+        authRepository: authRepository,
+        curriculumRepository: curriculumRepository,
+      ),
     );
     await tester.pumpAndSettle();
 

@@ -4,8 +4,9 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:chapterno_admin/core/error/app_failure.dart';
 import 'package:chapterno_admin/feature/auth/domain/admin_user.dart';
 import 'package:chapterno_admin/feature/auth/domain/auth_repository.dart';
-import 'package:chapterno_admin/feature/auth/screens/auth_cubit.dart';
-import 'package:chapterno_admin/feature/auth/screens/auth_state.dart';
+import 'package:chapterno_admin/feature/auth/screens/bloc/auth_cubit.dart';
+import 'package:chapterno_admin/feature/auth/screens/bloc/auth_state.dart';
+import 'package:chapterno_admin/feature/auth/types/admin_role.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

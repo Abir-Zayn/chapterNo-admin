@@ -33,6 +33,18 @@ final class ValidationFailure extends AppFailure {
   const ValidationFailure(super.message, {super.code});
 }
 
+final class ConflictFailure extends AppFailure {
+  const ConflictFailure(super.message, {super.code});
+}
+
+final class ForbiddenFailure extends AppFailure {
+  const ForbiddenFailure(super.message, {super.code});
+}
+
+final class NotFoundFailure extends AppFailure {
+  const NotFoundFailure(super.message, {super.code});
+}
+
 final class NetworkFailure extends AppFailure {
   const NetworkFailure(super.message, {super.code});
 }

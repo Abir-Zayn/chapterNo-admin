@@ -1,24 +1,6 @@
 // Pure-Dart domain entity representing an authorized ChapterNo admin.
-// Maps server-side public.admin_users roles without Flutter or Supabase imports.
+// Maps server-side public.admin_users rows without Flutter or Supabase imports.
 import 'admin_user_imports.dart';
-
-enum AdminRole {
-  superAdmin('super_admin', 'Super Admin'),
-  editor('editor', 'Editor'),
-  reviewer('reviewer', 'Reviewer');
-
-  const AdminRole(this.dbValue, this.label);
-
-  final String dbValue;
-  final String label;
-
-  static AdminRole fromDbValue(String? value) {
-    return AdminRole.values.firstWhere(
-      (role) => role.dbValue == value,
-      orElse: () => AdminRole.editor,
-    );
-  }
-}
 
 class AdminUser extends Equatable {
   const AdminUser({

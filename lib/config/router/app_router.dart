@@ -36,12 +36,7 @@ class AppRouter {
           routes: [
             GoRoute(
               path: '/curriculum',
-              builder: (_, _) => const MilestonePlaceholderScreen(
-                title: 'Curriculum Catalogue',
-                milestoneCode: 'Milestone 2',
-                description: 'Manage Bangladesh Education Boards and the NCTB SSC hierarchy (Subject -> Chapter -> Topic) with bilingual metadata.',
-                icon: PhosphorIconsRegular.books,
-              ),
+              builder: (_, _) => const CurriculumScreen(),
             ),
             GoRoute(
               path: '/mcq-studio',
