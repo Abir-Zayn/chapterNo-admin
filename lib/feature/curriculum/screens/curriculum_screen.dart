@@ -1,5 +1,5 @@
 // Curriculum Catalogue page composing top bar, boards/levels, and syllabus.
-// Delegates dialog/archive actions to utils and panes to widgets/.
+// Renders status-based error scenes and surfaces generic error snackbars.
 import 'imports/curriculum_screen_imports.dart';
 
 class CurriculumScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class _CurriculumScreenState extends State<CurriculumScreen> {
     super.initState();
     final cubit = context.read<CurriculumCubit>();
     if (cubit.state.status == CurriculumStatus.initial) {
-      cubit.loadInitial();
+      Future.microtask(cubit.loadInitial);
     }
   }
 
@@ -37,7 +37,17 @@ class _CurriculumScreenState extends State<CurriculumScreen> {
         role == AdminRole.superAdmin || role == AdminRole.editor;
     final canMutateLevelsAndBoards = role == AdminRole.superAdmin;
 
-    return BlocBuilder<CurriculumCubit, CurriculumState>(
+    return BlocConsumer<CurriculumCubit, CurriculumState>(
+      listenWhen: (previous, current) =>
+          current.errorMessage != null &&
+          previous.errorMessage != current.errorMessage,
+      listener: (context, state) {
+        showAppErrorSnackBar(
+          context,
+          message: state.errorMessage!,
+          statusCode: state.errorStatusCode,
+        );
+      },
       builder: (context, state) {
         if (state.status == CurriculumStatus.loading ||
             state.status == CurriculumStatus.initial) {
@@ -47,15 +57,13 @@ class _CurriculumScreenState extends State<CurriculumScreen> {
         }
 
         if (state.status == CurriculumStatus.error && state.levels.isEmpty) {
-          return AppEmptyView(
-            title: 'Failed to load curriculum',
-            subtitle: state.errorMessage ?? 'Unable to reach GraphQL API.',
-            icon: PhosphorIconsRegular.warningCircle,
-            action: FilledButton.icon(
-              onPressed: () => context.read<CurriculumCubit>().loadInitial(),
-              icon: const Icon(PhosphorIconsRegular.arrowClockwise, size: 16),
-              label: const Text('Retry'),
-            ),
+          return AppErrorScene(
+            statusCode: state.errorStatusCode,
+            message:
+                state.errorMessage ??
+                'Something went wrong while loading the curriculum.',
+            onRetry: () => context.read<CurriculumCubit>().loadInitial(),
+            onSignOut: () => context.read<AuthCubit>().signOut(),
           );
         }
 
@@ -70,6 +78,9 @@ class _CurriculumScreenState extends State<CurriculumScreen> {
             if (state.errorMessage != null) ...[
               const SizedBox(height: 12),
               AppErrorBanner(
+                title: state.errorStatusCode != null
+                    ? 'Error ${state.errorStatusCode}'
+                    : 'Error',
                 message: state.errorMessage!,
                 onDismiss: () => context.read<CurriculumCubit>().clearError(),
               ),

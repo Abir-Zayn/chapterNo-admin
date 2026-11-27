@@ -1,6 +1,7 @@
 // Widget tests for CurriculumScreen role gating and Bangla form submission.
 // Verifies super_admin, editor, and reviewer UI controls without network calls.
 import 'package:chapterno_admin/config/theme/app_theme.dart';
+import 'package:chapterno_admin/core/error/app_failure.dart';
 import 'package:chapterno_admin/feature/auth/domain/admin_user.dart';
 import 'package:chapterno_admin/feature/auth/domain/auth_repository.dart';
 import 'package:chapterno_admin/feature/auth/screens/bloc/auth_cubit.dart';
@@ -74,7 +75,11 @@ void main() {
         .thenAnswer((_) async => const []);
   });
 
-  Future<void> pumpScreen(WidgetTester tester, AdminRole role) async {
+  Future<void> pumpScreen(
+    WidgetTester tester,
+    AdminRole role, {
+    bool settle = true,
+  }) async {
     tester.view.physicalSize = const Size(1280, 820);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -105,7 +110,12 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    if (settle) {
+      await tester.pumpAndSettle();
+    } else {
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 250));
+    }
   }
 
   testWidgets('reviewer sees Read-only banner and no Add buttons', (
@@ -211,5 +221,24 @@ void main() {
 
     final selectedScienceText = tester.widget<Text>(scienceFinder);
     expect(selectedScienceText.style?.color, Colors.white);
+  });
+
+  testWidgets('renders status-based error scene and snackbar on 403 failure', (
+    tester,
+  ) async {
+    when(() => curriculumRepository.fetchRoot()).thenAnswer(
+      (_) async => throw const ForbiddenFailure(
+        'You do not have permission for this action.',
+        statusCode: 403,
+      ),
+    );
+
+    await pumpScreen(tester, AdminRole.editor, settle: false);
+
+    expect(find.text('Access Denied (403)'), findsOneWidget);
+    expect(
+      find.text('Error 403: You do not have permission for this action.'),
+      findsOneWidget,
+    );
   });
 }

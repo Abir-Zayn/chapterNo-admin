@@ -240,7 +240,11 @@ extension CurriculumMutations on CurriculumCubit {
       );
     } on AppFailure catch (failure) {
       applyState(
-        state.copyWith(chapters: current, errorMessage: failure.message),
+        state.copyWith(
+          chapters: current,
+          errorMessage: failure.message,
+          errorStatusCode: failure.statusCode,
+        ),
       );
     }
   }
@@ -275,6 +279,7 @@ extension CurriculumMutations on CurriculumCubit {
         state.copyWith(
           chapters: previousChapters,
           errorMessage: failure.message,
+          errorStatusCode: failure.statusCode,
         ),
       );
     }

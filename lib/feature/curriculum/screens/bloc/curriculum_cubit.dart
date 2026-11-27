@@ -45,6 +45,7 @@ class CurriculumCubit extends Cubit<CurriculumState> {
         state.copyWith(
           status: CurriculumStatus.error,
           errorMessage: failure.message,
+          errorStatusCode: failure.statusCode,
         ),
       );
     }
@@ -137,7 +138,11 @@ class CurriculumCubit extends Cubit<CurriculumState> {
       }
     } on AppFailure catch (failure) {
       emit(
-        state.copyWith(isLoadingSubjects: false, errorMessage: failure.message),
+        state.copyWith(
+          isLoadingSubjects: false,
+          errorMessage: failure.message,
+          errorStatusCode: failure.statusCode,
+        ),
       );
     }
   }
@@ -165,7 +170,11 @@ class CurriculumCubit extends Cubit<CurriculumState> {
       );
     } on AppFailure catch (failure) {
       emit(
-        state.copyWith(isLoadingChapters: false, errorMessage: failure.message),
+        state.copyWith(
+          isLoadingChapters: false,
+          errorMessage: failure.message,
+          errorStatusCode: failure.statusCode,
+        ),
       );
     }
   }
@@ -177,7 +186,13 @@ class CurriculumCubit extends Cubit<CurriculumState> {
       emit(state.copyWith(isMutating: false));
       return null;
     } on AppFailure catch (failure) {
-      emit(state.copyWith(isMutating: false, errorMessage: failure.message));
+      emit(
+        state.copyWith(
+          isMutating: false,
+          errorMessage: failure.message,
+          errorStatusCode: failure.statusCode,
+        ),
+      );
       return failure.message;
     }
   }

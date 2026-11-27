@@ -11,7 +11,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = AppPalette.of(context);
     final admin = context.select((AuthCubit cubit) => cubit.state.adminUser);
-    final themeMode = context.watch<ThemeCubit?>()?.state ?? ThemeMode.light;
+    final themeMode = _safeThemeMode(context);
 
     return Align(
       alignment: Alignment.topLeft,
@@ -72,7 +72,7 @@ class SettingsScreen extends StatelessWidget {
                       ],
                       selected: {themeMode},
                       onSelectionChanged: (values) =>
-                          context.read<ThemeCubit?>()?.setMode(values.first),
+                          _safeThemeCubit(context)?.setMode(values.first),
                     ),
                   ],
                 ),
@@ -132,6 +132,22 @@ class SettingsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+ThemeMode _safeThemeMode(BuildContext context) {
+  try {
+    return context.watch<ThemeCubit>().state;
+  } catch (_) {
+    return ThemeMode.light;
+  }
+}
+
+ThemeCubit? _safeThemeCubit(BuildContext context) {
+  try {
+    return context.read<ThemeCubit>();
+  } catch (_) {
+    return null;
   }
 }
 

@@ -179,3 +179,99 @@ class AppRetryView extends StatelessWidget {
     );
   }
 }
+
+class AppErrorScene extends StatelessWidget {
+  const AppErrorScene({
+    super.key,
+    required this.message,
+    required this.onRetry,
+    this.statusCode,
+    this.onSignOut,
+  });
+
+  final int? statusCode;
+  final String message;
+  final VoidCallback onRetry;
+  final VoidCallback? onSignOut;
+
+  @override
+  Widget build(BuildContext context) {
+    final code = statusCode ?? 500;
+    final (title, icon) = switch (code) {
+      401 => ('Session Expired (401)', PhosphorIconsRegular.lockKey),
+      403 => ('Access Denied (403)', PhosphorIconsRegular.shieldWarning),
+      404 => ('Not Found (404)', PhosphorIconsRegular.magnifyingGlassMinus),
+      503 ||
+      504 => ('Connection Unavailable ($code)', PhosphorIconsRegular.wifiSlash),
+      _ => (
+        'Something Went Wrong ($code)',
+        PhosphorIconsRegular.warningOctagon,
+      ),
+    };
+
+    return AppEmptyView(
+      title: title,
+      subtitle: message,
+      icon: icon,
+      action: Wrap(
+        spacing: 10,
+        runSpacing: 8,
+        alignment: WrapAlignment.center,
+        children: [
+          if (code == 401 && onSignOut != null)
+            FilledButton.icon(
+              onPressed: onSignOut,
+              icon: const Icon(PhosphorIconsRegular.signOut, size: 16),
+              label: const Text('Sign In Again'),
+            )
+          else
+            FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(PhosphorIconsRegular.arrowClockwise, size: 16),
+              label: const Text('Retry'),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+void showAppErrorSnackBar(
+  BuildContext context, {
+  required String message,
+  int? statusCode,
+}) {
+  final palette = AppPalette.of(context);
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  if (messenger == null) return;
+  final prefix = statusCode != null ? 'Error $statusCode: ' : 'Error: ';
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: palette.primary,
+        content: Row(
+          children: [
+            Icon(
+              PhosphorIconsRegular.warningCircle,
+              size: 18,
+              color: palette.onPrimary,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                '$prefix$message',
+                style: TextStyle(color: palette.onPrimary, fontSize: 13),
+              ),
+            ),
+          ],
+        ),
+        action: SnackBarAction(
+          label: 'Dismiss',
+          textColor: palette.onPrimary,
+          onPressed: () => messenger.hideCurrentSnackBar(),
+        ),
+      ),
+    );
+}
