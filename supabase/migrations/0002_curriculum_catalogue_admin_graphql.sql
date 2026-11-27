@@ -67,6 +67,9 @@ alter table public.education_levels
   add column if not exists created_at timestamptz not null default now(),
   add column if not exists updated_at timestamptz not null default now();
 
+create unique index if not exists uq_education_levels_code
+  on public.education_levels(code);
+
 -- 3.2 boards
 create table if not exists public.boards (
   id uuid primary key default gen_random_uuid(),
@@ -95,6 +98,8 @@ alter table public.boards
 
 create index if not exists idx_boards_education_level_id
   on public.boards(education_level_id);
+create unique index if not exists uq_boards_education_level_code
+  on public.boards(education_level_id, code);
 
 -- 3.3 subjects
 create table if not exists public.subjects (
@@ -135,6 +140,8 @@ alter table public.subjects
 
 create index if not exists idx_subjects_education_level_id
   on public.subjects(education_level_id);
+create unique index if not exists uq_subjects_education_level_code
+  on public.subjects(education_level_id, code);
 
 -- 3.4 chapters
 create table if not exists public.chapters (
@@ -173,6 +180,10 @@ alter table public.chapters
 
 create index if not exists idx_chapters_subject_id
   on public.chapters(subject_id);
+create unique index if not exists uq_chapters_subject_code
+  on public.chapters(subject_id, code);
+create unique index if not exists uq_chapters_subject_number
+  on public.chapters(subject_id, chapter_number);
 
 -- 3.5 topics
 create table if not exists public.topics (
@@ -208,6 +219,8 @@ alter table public.topics
 
 create index if not exists idx_topics_chapter_id
   on public.topics(chapter_id);
+create unique index if not exists uq_topics_chapter_code
+  on public.topics(chapter_id, code);
 
 -- 4. Updated-at & Audit Triggers
 drop trigger if exists trg_education_levels_updated_at on public.education_levels;
